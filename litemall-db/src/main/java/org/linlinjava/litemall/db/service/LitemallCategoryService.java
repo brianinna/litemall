@@ -8,7 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -89,8 +93,10 @@ public class LitemallCategoryService {
     }
 
     public List<LitemallCategory> queryChannel() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime dateTime = LocalDateTime.of(2020, Month.JANUARY, 8, 12, 30);
         LitemallCategoryExample example = new LitemallCategoryExample();
-        example.or().andLevelEqualTo("L1").andDeletedEqualTo(false);
+        example.or().andLevelEqualTo("L1").andDeletedEqualTo(false).andAddTimeGreaterThan(dateTime);
         return categoryMapper.selectByExampleSelective(example, CHANNEL);
     }
 }

@@ -2,11 +2,13 @@ package org.linlinjava.litemall.admin.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallBrand;
 import org.linlinjava.litemall.db.service.LitemallBrandService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +67,8 @@ public class AdminBrandController {
         if (error != null) {
             return error;
         }
+        LitemallAdmin user = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal(); // 获取当前登录用户
+        brand.setCid(user.getCid());
         brandService.add(brand);
         return ResponseUtil.ok(brand);
     }

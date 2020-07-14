@@ -369,6 +369,10 @@ public class WxOrderService {
 
         Integer orderId = null;
         LitemallOrder order = null;
+
+
+        LitemallUser user = userService.findById(userId);
+        Integer cid = user.getCid();
         // 订单
         order = new LitemallOrder();
         order.setUserId(userId);
@@ -385,7 +389,7 @@ public class WxOrderService {
         order.setIntegralPrice(integralPrice);
         order.setOrderPrice(orderTotalPrice);
         order.setActualPrice(actualPrice);
-
+        order.setCid(cid);
         // 有团购
         if (grouponRules != null) {
             order.setGrouponPrice(grouponPrice);    //  团购价格
@@ -411,7 +415,7 @@ public class WxOrderService {
             orderGoods.setNumber(cartGoods.getNumber());
             orderGoods.setSpecifications(cartGoods.getSpecifications());
             orderGoods.setAddTime(LocalDateTime.now());
-
+            orderGoods.setCid(cid);
             orderGoodsService.add(orderGoods);
         }
 

@@ -270,18 +270,21 @@ public class AdminGoodsService {
         // 商品规格表litemall_goods_specification
         for (LitemallGoodsSpecification specification : specifications) {
             specification.setGoodsId(goods.getId());
+            specification.setCid(goods.getCid());
             specificationService.add(specification);
         }
 
         // 商品参数表litemall_goods_attribute
         for (LitemallGoodsAttribute attribute : attributes) {
             attribute.setGoodsId(goods.getId());
+            attribute.setCid(goods.getCid());
             attributeService.add(attribute);
         }
 
         // 商品货品表litemall_product
         for (LitemallGoodsProduct product : products) {
             product.setGoodsId(goods.getId());
+            product.setCid(goods.getCid());
             productService.add(product);
         }
         return ResponseUtil.ok();

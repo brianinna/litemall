@@ -152,10 +152,13 @@ public class WxGoodsController {
 
 		// 记录用户的足迹 异步处理
 		if (userId != null) {
+			LitemallUser user = userService.findById(userId);
+
 			executorService.execute(()->{
 				LitemallFootprint footprint = new LitemallFootprint();
 				footprint.setUserId(userId);
 				footprint.setGoodsId(id);
+				footprint.setCid(user.getCid());
 				footprintService.add(footprint);
 			});
 		}

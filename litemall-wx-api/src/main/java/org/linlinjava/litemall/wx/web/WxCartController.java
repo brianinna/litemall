@@ -45,6 +45,8 @@ public class WxCartController {
     private LitemallCouponUserService couponUserService;
     @Autowired
     private CouponVerifyService couponVerifyService;
+    @Autowired
+    private LitemallUserService userService;
 
     /**
      * 用户购物车信息
@@ -192,6 +194,8 @@ public class WxCartController {
             return ResponseUtil.badArgument();
         }
 
+        LitemallUser user = userService.findById(userId);
+
         Integer productId = cart.getProductId();
         Integer number = cart.getNumber().intValue();
         Integer goodsId = cart.getGoodsId();
@@ -230,6 +234,7 @@ public class WxCartController {
             cart.setSpecifications(product.getSpecifications());
             cart.setUserId(userId);
             cart.setChecked(true);
+            cart.setCid(user.getCid());
             cartService.add(cart);
         } else {
             //取得规格的信息,判断规格库存

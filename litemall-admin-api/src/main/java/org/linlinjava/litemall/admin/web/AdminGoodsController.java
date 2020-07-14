@@ -2,12 +2,14 @@ package org.linlinjava.litemall.admin.web;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.linlinjava.litemall.admin.annotation.RequiresPermissionsDesc;
 import org.linlinjava.litemall.admin.dto.GoodsAllinone;
 import org.linlinjava.litemall.admin.service.AdminGoodsService;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
+import org.linlinjava.litemall.db.domain.LitemallAdmin;
 import org.linlinjava.litemall.db.domain.LitemallGoods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -88,6 +90,10 @@ public class AdminGoodsController {
     @RequiresPermissionsDesc(menu = {"商品管理", "商品管理"}, button = "上架")
     @PostMapping("/create")
     public Object create(@RequestBody GoodsAllinone goodsAllinone) {
+        Integer cid = ((LitemallAdmin) SecurityUtils.getSubject().getPrincipal()).getCid();
+        LitemallGoods goods = goodsAllinone.getGoods();
+        goods.setCid(cid);
+        goodsAllinone.setGoods(goods);
         return adminGoodsService.create(goodsAllinone);
     }
 
