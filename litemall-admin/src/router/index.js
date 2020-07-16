@@ -225,6 +225,16 @@ export const asyncRoutes = [
           title: '关键词',
           noCache: true
         }
+      },
+      {
+        path: 'courier',
+        component: () => import('@/views/mall/courier'),
+        name: 'keyword',
+        meta: {
+          perms: ['GET /admin/courier/list', 'POST /admin/courier/create', 'GET /admin/courier/read', 'POST /admin/courier/update', 'POST /admin/courier/delete'],
+          title: '配送员',
+          noCache: true
+        }
       }
     ]
   },

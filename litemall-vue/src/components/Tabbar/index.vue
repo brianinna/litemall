@@ -1,15 +1,14 @@
 <template>
-	<van-tabbar v-model="active" style="z-index: 1999">
-		<van-tabbar-item
-			v-for="(tab, index) in tabbar"
-			:icon="tab.icon"
-			:to="tab.path"
-			:dot="tab.dot"
-			:info="tab.info"
-			:key="index">
-			{{tab.name}}
-		</van-tabbar-item>
-	</van-tabbar>
+  <van-tabbar v-model="active" style="z-index: 1999">
+    <van-tabbar-item
+      v-for="(tab, index) in tabbar"
+      :icon="tab.icon"
+      :to="tab.path"
+      :dot="tab.dot"
+      :info="tab.info"
+      :key="index"
+    >{{tab.name}}</van-tabbar-item>
+  </van-tabbar>
 </template>
 
 
@@ -22,18 +21,10 @@ export default {
       active: 0,
       tabbar: [
         {
-          name: '精选',
+          name: '首页',
           path: '/',
           pathName: 'home',
           icon: 'compass-full',
-          dot: false,
-          info: ''
-        },
-        {
-          name: '分类',
-          path: '/items',
-          pathName: 'class',
-          icon: 'class-full',
           dot: false,
           info: ''
         },

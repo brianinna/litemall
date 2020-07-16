@@ -1,22 +1,72 @@
 <template>
   <div class="app-container">
-
     <!-- 查询和其他操作 -->
     <div class="filter-container">
-      <el-input v-model="listQuery.userId" clearable class="filter-item" style="width: 160px;" placeholder="请输入用户ID" />
-      <el-input v-model="listQuery.orderId" clearable class="filter-item" style="width: 160px;" placeholder="请输入订单ID" />
-      <el-input v-model="listQuery.orderSn" clearable class="filter-item" style="width: 160px;" placeholder="请输入订单编号" />
-      <el-date-picker v-model="listQuery.timeArray" type="datetimerange" value-format="yyyy-MM-dd HH:mm:ss" class="filter-item" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions" />
-      <el-select v-model="listQuery.orderStatusArray" multiple style="width: 200px" class="filter-item" placeholder="请选择订单状态">
+      <el-input
+        v-model="listQuery.userId"
+        clearable
+        class="filter-item"
+        style="width: 160px;"
+        placeholder="请输入用户ID"
+      />
+      <el-input
+        v-model="listQuery.orderId"
+        clearable
+        class="filter-item"
+        style="width: 160px;"
+        placeholder="请输入订单ID"
+      />
+      <el-input
+        v-model="listQuery.orderSn"
+        clearable
+        class="filter-item"
+        style="width: 160px;"
+        placeholder="请输入订单编号"
+      />
+      <el-date-picker
+        v-model="listQuery.timeArray"
+        type="datetimerange"
+        value-format="yyyy-MM-dd HH:mm:ss"
+        class="filter-item"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+        :picker-options="pickerOptions"
+      />
+      <el-select
+        v-model="listQuery.orderStatusArray"
+        multiple
+        style="width: 200px"
+        class="filter-item"
+        placeholder="请选择订单状态"
+      >
         <el-option v-for="(key, value) in statusMap" :key="key" :label="key" :value="value" />
       </el-select>
-      <el-button v-permission="['GET /admin/order/list']" class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
-      <el-button :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
+      <el-button
+        v-permission="['GET /admin/order/list']"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >查找</el-button>
+      <el-button
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >导出</el-button>
     </div>
 
     <!-- 查询结果 -->
-    <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
-
+    <el-table
+      v-loading="listLoading"
+      :data="list"
+      element-loading-text="正在查询中。。。"
+      border
+      fit
+      highlight-current-row
+    >
       <el-table-column align="center" min-width="100" label="订单编号" prop="orderSn" />
 
       <el-table-column align="center" label="用户ID" prop="userId" />
@@ -39,15 +89,43 @@
 
       <el-table-column align="center" label="操作" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button v-permission="['GET /admin/order/detail']" type="primary" size="mini" @click="handleDetail(scope.row)">详情</el-button>
-          <el-button v-permission="['POST /admin/order/delete']" type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
-          <el-button v-if="scope.row.orderStatus==201" v-permission="['POST /admin/order/ship']" type="primary" size="mini" @click="handleShip(scope.row)">发货</el-button>
-          <el-button v-if="scope.row.orderStatus==202||scope.row.orderStatus==204" v-permission="['POST /admin/order/refund']" type="primary" size="mini" @click="handleRefund(scope.row)">退款</el-button>
+          <el-button
+            v-permission="['GET /admin/order/detail']"
+            type="primary"
+            size="mini"
+            @click="handleDetail(scope.row)"
+          >详情</el-button>
+          <el-button
+            v-permission="['POST /admin/order/delete']"
+            type="danger"
+            size="mini"
+            @click="handleDelete(scope.row)"
+          >删除</el-button>
+          <el-button
+            v-if="scope.row.orderStatus==201"
+            v-permission="['POST /admin/order/ship']"
+            type="primary"
+            size="mini"
+            @click="handleShip(scope.row)"
+          >发货</el-button>
+          <el-button
+            v-if="scope.row.orderStatus==202||scope.row.orderStatus==204"
+            v-permission="['POST /admin/order/refund']"
+            type="primary"
+            size="mini"
+            @click="handleRefund(scope.row)"
+          >退款</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="listQuery.page"
+      :limit.sync="listQuery.limit"
+      @pagination="getList"
+    />
 
     <!-- 订单详情对话框 -->
     <el-dialog :visible.sync="orderDialogVisible" title="订单详情" width="800">
@@ -121,14 +199,23 @@
 
     <!-- 发货对话框 -->
     <el-dialog :visible.sync="shipDialogVisible" title="发货">
-      <el-form ref="shipForm" :model="shipForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="快递公司" prop="shipChannel">
-          <el-select v-model="shipForm.shipChannel" placeholder="请选择">
-            <el-option v-for="item in channels" :key="item.code" :label="item.name" :value="item.code" />
+      <el-form
+        ref="shipForm"
+        :model="shipForm"
+        status-icon
+        label-position="left"
+        label-width="100px"
+        style="width: 400px; margin-left:50px;"
+      >
+        <el-form-item label="配送员" prop="courier">
+          <el-select v-model="shipForm.courierId" placeholder="请选择">
+            <el-option
+              v-for="item in couriers"
+              :key="item.id"
+              :label="item.username"
+              :value="item.id"
+            />
           </el-select>
-        </el-form-item>
-        <el-form-item label="快递编号" prop="shipSn">
-          <el-input v-model="shipForm.shipSn" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -139,7 +226,14 @@
 
     <!-- 退款对话框 -->
     <el-dialog :visible.sync="refundDialogVisible" title="退款">
-      <el-form ref="refundForm" :model="refundForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+      <el-form
+        ref="refundForm"
+        :model="refundForm"
+        status-icon
+        label-position="left"
+        label-width="100px"
+        style="width: 400px; margin-left:50px;"
+      >
         <el-form-item label="退款金额" prop="refundMoney">
           <el-input v-model="refundForm.refundMoney" :disabled="true" />
         </el-form-item>
@@ -149,12 +243,12 @@
         <el-button type="primary" @click="confirmRefund">确定</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
-import { detailOrder, listOrder, listChannel, refundOrder, deleteOrder, shipOrder } from '@/api/order'
+import { detailOrder, listOrder, refundOrder, deleteOrder, shipOrder } from '@/api/order'
+import { fetchList } from '@/api/courier'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import checkPermission from '@/utils/permission' // 权限判断函数
 
@@ -192,7 +286,7 @@ export default {
         orderStatusArray: [],
         sort: 'add_time',
         order: 'desc',
-        orderId:undefined
+        orderId: undefined
       },
       pickerOptions: {
         shortcuts: [{
@@ -230,8 +324,7 @@ export default {
       },
       shipForm: {
         orderId: undefined,
-        shipChannel: undefined,
-        shipSn: undefined
+        courierId: undefined
       },
       shipDialogVisible: false,
       refundForm: {
@@ -240,12 +333,12 @@ export default {
       },
       refundDialogVisible: false,
       downloadLoading: false,
-      channels: []
+      couriers: []
     }
   },
   created() {
     this.getList()
-    this.getChannel()
+    this.getCouriers()
   },
   methods: {
     checkPermission,
@@ -258,12 +351,12 @@ export default {
         this.listQuery.start = null
         this.listQuery.end = null
       }
-      if(this.listQuery.orderId){
+      if (this.listQuery.orderId) {
         detailOrder(this.listQuery.orderId).then(response => {
-          this.list = [];
-          if(response.data.data.order){
-            this.list.push(response.data.data.order);
-            this.total = 1;
+          this.list = []
+          if (response.data.data.order) {
+            this.list.push(response.data.data.order)
+            this.total = 1
             this.listLoading = false
           }
         }).catch(() => {
@@ -271,7 +364,7 @@ export default {
           this.total = 0
           this.listLoading = false
         })
-      }else{
+      } else {
         listOrder(this.listQuery).then(response => {
           this.list = response.data.data.list
           this.total = response.data.data.total
@@ -283,9 +376,9 @@ export default {
         })
       }
     },
-    getChannel() {
-      listChannel().then(response => {
-        this.channels = response.data.data
+    getCouriers() {
+      fetchList().then(response => {
+        this.couriers = response.data.data.list
       })
     },
     handleFilter() {
