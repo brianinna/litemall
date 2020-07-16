@@ -115,6 +115,7 @@ public class AdminAuthController {
         Map<String, Object> data = new HashMap<>();
         data.put("name", admin.getUsername());
         data.put("avatar", admin.getAvatar());
+        data.put("cid", admin.getCid());
 
         Integer[] roleIds = admin.getRoleIds();
         Set<String> roles = roleService.queryByIds(roleIds);

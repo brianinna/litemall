@@ -50,6 +50,8 @@ public class AdminOrderService {
     private LogHelper logHelper;
     @Autowired
     private LitemallCouponUserService couponUserService;
+    @Autowired
+    private LitemallAdminService adminService;
 
     public Object list(Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray,
                        Integer page, Integer limit, String sort, String order) {
@@ -190,9 +192,8 @@ public class AdminOrderService {
      */
     public Object ship(String body) {
         Integer orderId = JacksonUtil.parseInteger(body, "orderId");
-        String shipSn = JacksonUtil.parseString(body, "shipSn");
-        String shipChannel = JacksonUtil.parseString(body, "shipChannel");
-        if (orderId == null || shipSn == null || shipChannel == null) {
+        Integer courierId = JacksonUtil.parseInteger(body, "courierId");
+        if (orderId == null || courierId == null ) {
             return ResponseUtil.badArgument();
         }
 
@@ -206,9 +207,14 @@ public class AdminOrderService {
             return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能确认收货");
         }
 
+        LitemallAdmin courier = adminService.findById(courierId);
+        if(courier == null || !courier.getStatus().equals("1") || courier.getDeleted()){
+            return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "配送员状态出错请联系管理员查询");
+
+        }
         order.setOrderStatus(OrderUtil.STATUS_SHIP);
-        order.setShipSn(shipSn);
-        order.setShipChannel(shipChannel);
+        order.setShipSn(courier.getId().toString());
+        order.setShipChannel(courier.getUsername());
         order.setShipTime(LocalDateTime.now());
         if (orderService.updateWithOptimisticLocker(order) == 0) {
             return ResponseUtil.updatedDateExpired();
@@ -217,7 +223,8 @@ public class AdminOrderService {
         //TODO 发送邮件和短信通知，这里采用异步发送
         // 发货会发送通知短信给用户:          *
         // "您的订单已经发货，快递公司 {1}，快递单 {2} ，请注意查收"
-        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
+        // todo 发送末班消息给客户以及配送员
+//        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
 
         logHelper.logOrderSucceed("发货", "订单编号 " + order.getOrderSn());
         return ResponseUtil.ok();

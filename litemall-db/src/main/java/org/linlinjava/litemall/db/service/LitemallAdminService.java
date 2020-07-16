@@ -10,11 +10,12 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class LitemallAdminService {
-    private final Column[] result = new Column[]{Column.id, Column.username, Column.avatar, Column.roleIds};
+    private final Column[] result = new Column[]{Column.id, Column.username, Column.avatar, Column.roleIds,Column.name,Column.phone,Column.cid,Column.status};
     @Resource
     private LitemallAdminMapper adminMapper;
 
@@ -44,6 +45,37 @@ public class LitemallAdminService {
         PageHelper.startPage(page, limit);
         return adminMapper.selectByExampleSelective(example, result);
     }
+
+
+    public List<LitemallAdmin> queryCourierSelective(String username, Integer page, Integer limit, String sort, String order, Integer cid) {
+
+        LitemallAdminExample example = new LitemallAdminExample();
+        LitemallAdminExample.Criteria criteria = example.createCriteria();
+
+        if (!StringUtils.isEmpty(username)) {
+            criteria.andUsernameLike("%" + username + "%");
+        }
+        criteria.andDeletedEqualTo(false);
+        Integer[] courier1 = new Integer[]{4};
+        Integer[] courier2 = new Integer[]{1, 4};
+
+
+        List<Integer[]> courierList = Arrays.asList(courier1, courier2);
+        criteria.andRoleIdsIn(courierList);
+        if (null != cid && cid > 0) {
+            criteria.andCidEqualTo(cid);
+        }
+
+        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
+            example.setOrderByClause(sort + " " + order);
+        }
+
+        PageHelper.startPage(page, limit);
+        return adminMapper.selectByExampleSelective(example,result);
+
+
+    }
+
 
     public int updateById(LitemallAdmin admin) {
         admin.setUpdateTime(LocalDateTime.now());
