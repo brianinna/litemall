@@ -305,6 +305,16 @@ export const asyncRoutes = [
     },
     children: [
       {
+        path: 'promoter',
+        component: () => import('@/views/promotion/promoter'),
+        name: 'ad',
+        meta: {
+          perms: ['GET /admin/promoter/list', 'POST /promoter/ad/create', 'GET /admin/promoter/read', 'POST /admin/promoter/update', 'POST /admin/promoter/delete'],
+          title: '推广管理',
+          noCache: true
+        }
+      },
+      {
         path: 'ad',
         component: () => import('@/views/promotion/ad'),
         name: 'ad',
@@ -597,7 +607,21 @@ export const asyncRoutes = [
     component: Layout,
     redirect: 'noredirect',
     alwaysShow: true,
+    meta: {
+      title: '个人中心',
+      icon: 'wechat'
+    },
     children: [
+      {
+        path: 'delivery',
+        component: () => import('@/views/profile/delivery'),
+        name: 'delivery',
+        meta: {
+          perms: ['GET /admin/delivery/list', 'POST /admin/delivery/create', 'POST /admin/delivery/update', 'POST /admin/delivery/delete'],
+          title: '配送中心',
+          noCache: true
+        }
+      },
       {
         path: 'password',
         component: () => import('@/views/profile/password'),

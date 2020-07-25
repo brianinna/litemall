@@ -47,7 +47,7 @@ public class LitemallAdminService {
     }
 
 
-    public List<LitemallAdmin> queryCourierSelective(String username, Integer page, Integer limit, String sort, String order, Integer cid) {
+    public List<LitemallAdmin> queryCourierSelective(String username, Integer page, Integer limit, String sort, String order, Integer cid,  List<Integer[]>roleList) {
 
         LitemallAdminExample example = new LitemallAdminExample();
         LitemallAdminExample.Criteria criteria = example.createCriteria();
@@ -56,12 +56,8 @@ public class LitemallAdminService {
             criteria.andUsernameLike("%" + username + "%");
         }
         criteria.andDeletedEqualTo(false);
-        Integer[] courier1 = new Integer[]{4};
-        Integer[] courier2 = new Integer[]{1, 4};
 
-
-        List<Integer[]> courierList = Arrays.asList(courier1, courier2);
-        criteria.andRoleIdsIn(courierList);
+        criteria.andRoleIdsIn(roleList);
         if (null != cid && cid > 0) {
             criteria.andCidEqualTo(cid);
         }
