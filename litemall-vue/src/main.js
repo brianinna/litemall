@@ -14,6 +14,8 @@ import filters from '@/filter';
 Vue.component(VueCountdown.name, VueCountdown);
 Vue.use(filters);
 
+import VueJsonp from 'vue-jsonp'
+Vue.use(VueJsonp)
 
 import { Lazyload, Icon, Cell, CellGroup, loading, Button, Toast } from 'vant';
 Vue.use(Icon);

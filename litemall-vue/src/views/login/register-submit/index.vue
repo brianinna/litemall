@@ -1,21 +1,13 @@
 <template>
-	<md-field-group class="register_submit">
-		<md-field v-model="code" icon="mobile" placeholder="请输入验证码">
-			<div slot="rightIcon" @click="getCode" class="getCode red">
-				<countdown v-if="counting" :time="60000" @end="countDownEnd">
-				  <template slot-scope="props">{{ +props.seconds || 60 }}秒后获取</template>
-				</countdown>
-				<span v-else>获取验证码</span>
-			</div>
-		</md-field>
-		<md-field v-model="username" icon="username" placeholder="请输入用户名"/>
-		<md-field v-model="password" icon="lock" placeholder="请输入密码"/>
-		<md-field v-model="repeatPassword" icon="lock" placeholder="请再次确认密码"/>
+  <md-field-group class="register_submit">
+    <md-field v-model="receiver" icon="username" placeholder="请输入收货人"></md-field>
+    <md-field v-model="tel" icon="mobile" placeholder="请输入手机号码" />
+    <md-field v-model="address" icon="dingwei1" placeholder="请输入详细地址" />
 
-		<div class="register_submit_btn">
-			<van-button type="danger" size="large" @click="registerSubmit">确定</van-button>
-		</div>
-	</md-field-group>
+    <div class="register_submit_btn">
+      <van-button type="danger" size="large" @click="registerSubmit">确定</van-button>
+    </div>
+  </md-field-group>
 </template>
 
 <script>
@@ -23,45 +15,46 @@ import field from '@/components/field/';
 import fieldGroup from '@/components/field-group/';
 import { authRegisterCaptcha } from '@/api/api';
 import { authRegister } from '@/api/api';
-import {Toast} from "vant";
+import { Toast } from "vant";
+import { setLocalStorage } from '@/utils/local-storage';
+
 
 export default {
-	props: {
-		phone: String
-	},
-	data() {
-		return {
-		  counting: true,
-		  code: '',
-		  username: '',
-		  password: '',
-		  repeatPassword: ''
-		};
-	},
-	mounted:function(){
-		this.getCode();
-	},
+  props: {
+    token: String
+  },
+  data() {
+    return {
+      counting: true,
+      code: '',
+      tel: '',
+      receiver: '',
+      address: ''    };
+  },
+  mounted: function () {
+  },
 
   methods: {
     registerSubmit() {
-      if(this.username === '' || this.code === ''){
+      if (this.receiver === '' || this.tel === '' || this.address === '') {
         return
       }
-      if(this.password === '' || this.repeatPassword === ''){
-        return
-      }
-      if(this.password !== this.repeatPassword){
-        this.password = ''
-        this.repeatPassword = ''
-        return
-      }
+      this.token = this.$route.query.token
+      console.log('token', this.token)
       let data = this.getRegisterData();
       authRegister(data).then(res => {
-        this.$router.push({
-          name: 'registerStatus',
-          params: { status: 'success' }
+        console.log('111res', res)
+        this.userInfo = res.data.data.userInfo;
+        setLocalStorage({
+          Authorization: res.data.data.token,
+          avatar: this.userInfo.avatarUrl,
+          nickName: this.userInfo.nickName
         });
-      }).catch (error => {
+
+        this.routerRedirect();
+
+
+      }).catch(error => {
         Toast.fail(error.data.errmsg);
         if (error.data.errno == 705) {
           window.location = '#/login/';
@@ -69,34 +62,28 @@ export default {
       });
     },
 
-    getCode() {
-      this.counting = true;
-      let data = {
-        mobile: this.phone
-      };
-      authRegisterCaptcha(data).then(res => {
-        this.counting = true;
-      }).catch(error => {
-        alert(error.data.errmsg);
-        this.counting = true;
-      });
-    },
 
     getRegisterData() {
-      const password = this.password;
-      const code = this.code;
-      const repeatPassword = this.repeatPassword;
-      const mobile = this.phone;
-      const username = this.username;
+      const receiver = this.receiver;
+      const tel = this.tel;
+      const address = this.address;
+
       return {
-        code: code,
-        username: username,
-        password: password,
-        repeatPassword: repeatPassword,
-        mobile: mobile
+        receiver: receiver,
+        tel: tel,
+        address: address,
+        token: this.$route.query.token
+
       };
     },
-
+    routerRedirect() {
+      // const { query } = this.$route;
+      // this.$router.replace({
+      //   name: query.redirect || 'home',
+      //   query: query
+      // });
+      window.location = '#/user/';
+    },
     countDownEnd() {
       this.counting = false;
     }
@@ -120,11 +107,6 @@ export default {
 
 .register_submit_btn {
   padding-top: 30px;
-}
-
-.getCode {
-  @include one-border(left);
-  text-align: center;
 }
 
 .time_down {

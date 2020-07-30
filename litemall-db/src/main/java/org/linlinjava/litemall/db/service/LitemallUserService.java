@@ -97,6 +97,12 @@ public class LitemallUserService {
         return userMapper.selectByExample(example);
     }
 
+    public List<LitemallUser> queryBySessionID(String sessionId) {
+        LitemallUserExample example = new LitemallUserExample();
+        example.or().andSessionKeyEqualTo(sessionId).andDeletedEqualTo(false);
+        return userMapper.selectByExample(example);
+    }
+
     public void deleteById(Integer id) {
         userMapper.logicalDeleteByPrimaryKey(id);
     }

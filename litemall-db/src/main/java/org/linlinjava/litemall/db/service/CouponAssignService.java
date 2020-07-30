@@ -39,6 +39,7 @@ public class CouponAssignService {
                 LitemallCouponUser couponUser = new LitemallCouponUser();
                 couponUser.setCouponId(couponId);
                 couponUser.setUserId(userId);
+                couponUser.setCid(1001);
                 Short timeType = coupon.getTimeType();
                 if (timeType.equals(CouponConstant.TIME_TYPE_TIME)) {
                     couponUser.setStartTime(coupon.getStartTime());

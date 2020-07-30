@@ -1,11 +1,11 @@
 <template>
-	<div class="login">
-    	<div class="store_header">
-		<div class="store_avatar">
-			<img src="../../assets/images/avatar_default.png" alt="头像" width="55" height="55">
-		</div>
-		<div class="store_name">litemall-vue</div>
-	</div>
+  <div class="login">
+    <div class="store_header">
+      <div class="store_avatar">
+        <img src="../../assets/images/avatar_default.png" alt="头像" width="55" height="55" />
+      </div>
+      <div class="store_name">litemall-vue</div>
+    </div>
 
     <md-field-group>
       <md-field
@@ -41,10 +41,8 @@
       <van-button size="large" type="danger" :loading="isLogining" @click="loginSubmit">登录</van-button>
     </md-field-group>
 
-
-      <div class="text-desc text-center bottom_positon">技术支持: litemall</div>
-
-	</div>
+    <div class="text-desc text-center bottom_positon">技术支持: litemall</div>
+  </div>
 </template>
 
 <script>
@@ -74,7 +72,8 @@ export default {
       userInfo: {}
     };
   },
-
+  mounted: function () {
+    this.login();  },
   methods: {
     clearText() {
       this.account = '';
@@ -122,11 +121,9 @@ export default {
     },
 
     getLoginData() {
-      const password = this.password;
-      const account = this.getUserType(this.account);
+
       return {
-        [account]: this.account,
-        password: password
+        token: this.$route.query.token
       };
     },
 
@@ -134,8 +131,8 @@ export default {
       const accountType = mobileReg.test(account)
         ? 'mobile'
         : emailReg.test(account)
-        ? 'email'
-        : 'username';
+          ? 'email'
+          : 'username';
       return accountType;
     }
   }

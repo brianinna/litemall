@@ -7,7 +7,7 @@
     </div>
 
     <van-cell-group class="payment_group">
-      <van-cell title="订单编号" :value="order.orderInfo.orderSn"/>
+      <van-cell title="订单编号" :value="order.orderInfo.orderSn" />
       <van-cell title="实付金额">
         <span class="red">{{order.orderInfo.actualPrice *100 | yuan}}</span>
       </van-cell>
@@ -17,17 +17,17 @@
       <div class="pay_way_title">选择支付方式</div>
       <van-radio-group v-model="payWay">
         <van-cell-group>
-          <van-cell>
+          <!-- <van-cell>
             <template slot="title">
               <img src="../../../assets/images/ali_pay.png" alt="支付宝" width="82" height="29">
             </template>
             <van-radio name="ali"/>
-          </van-cell>
+          </van-cell>-->
           <van-cell>
             <template slot="title">
-              <img src="../../../assets/images/wx_pay.png" alt="微信支付" width="113" height="23">
-            </template>            
-            <van-radio name="wx"/>
+              <img src="../../../assets/images/wx_pay.png" alt="微信支付" width="113" height="23" />
+            </template>
+            <van-radio name="wx" />
           </van-cell>
         </van-cell-group>
       </van-radio-group>
@@ -64,12 +64,12 @@ export default {
   },
   methods: {
     getOrder(orderId) {
-      orderDetail({orderId: orderId}).then(res => {
+      orderDetail({ orderId: orderId }).then(res => {
         this.order = res.data.data;
       });
     },
     pay() {
-      
+
       Dialog.alert({
         message: '你选择了' + (this.payWay === 'wx' ? '微信支付' : '支付宝支付')
       }).then(() => {
@@ -151,7 +151,7 @@ export default {
       WeixinJSBridge.invoke(
         'getBrandWCPayRequest',
         JSON.parse(data.prepay_data),
-        function(res) {
+        function (res) {
           if (res.err_msg == 'get_brand_wcpay_request:ok') {
             that.$router.replace({
               name: 'paymentStatus',
