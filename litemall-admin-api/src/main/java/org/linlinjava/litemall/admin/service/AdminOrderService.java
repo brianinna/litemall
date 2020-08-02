@@ -18,10 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +54,8 @@ public class AdminOrderService {
     private LitemallCouponUserService couponUserService;
     @Autowired
     private LitemallAdminService adminService;
+    @Autowired
+    private LitemallGoodConfirmService goodConfirmService;
 
     public Object list(Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray,
                        Integer page, Integer limit, String sort, String order) {
@@ -64,10 +68,12 @@ public class AdminOrderService {
         LitemallOrder order = orderService.findById(id);
         List<LitemallOrderGoods> orderGoods = orderGoodsService.queryByOid(id);
         UserVo user = userService.findUserVoById(order.getUserId());
+        List<LitemallGoodConfirm> confirms = goodConfirmService.querySelective(order.getUserId(),1,10,"id","desc");
         Map<String, Object> data = new HashMap<>();
         data.put("order", order);
         data.put("orderGoods", orderGoods);
         data.put("user", user);
+        data.put("confirms", confirms);
 
         return ResponseUtil.ok(data);
     }
@@ -203,18 +209,20 @@ public class AdminOrderService {
         }
 
         // 如果订单不是已付款状态，则不能发货
-        if (!order.getOrderStatus().equals(OrderUtil.STATUS_PAY)) {
+        if (!order.getOrderStatus().equals(OrderUtil.STATUS_PAY) && !order.getOrderStatus().equals(OrderUtil.STATUS_SHIP)) {
             return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "订单不能确认收货");
         }
 
         LitemallAdmin courier = adminService.findById(courierId);
-        if(courier == null || !courier.getStatus().equals("1") || courier.getDeleted()){
+        if(courier == null || !courier.getStatus().equals("1") ){
             return ResponseUtil.fail(ORDER_CONFIRM_NOT_ALLOWED, "配送员状态出错请联系管理员查询");
 
         }
+        logger.info(courier);
+
         order.setOrderStatus(OrderUtil.STATUS_SHIP);
         order.setShipSn(courier.getId().toString());
-        order.setShipChannel(courier.getUsername());
+        order.setShipChannel(courier.getName());
         order.setShipTime(LocalDateTime.now());
         if (orderService.updateWithOptimisticLocker(order) == 0) {
             return ResponseUtil.updatedDateExpired();
@@ -225,7 +233,14 @@ public class AdminOrderService {
         // "您的订单已经发货，快递公司 {1}，快递单 {2} ，请注意查收"
         // todo 发送末班消息给客户以及配送员
 //        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
+        Map<String, String> map = new HashMap();
+        map.put("orderId", order.getOrderSn());
+        map.put("time", order.getPayTime().toString());
+        map.put("openId", courier.getOpenId());
+        String notice = getForObject("http://127.0.0.1:8081/order/newMessage", map);
+        logger.info("发送消息结果");
 
+        logger.info(notice);
         logHelper.logOrderSucceed("发货", "订单编号 " + order.getOrderSn());
         return ResponseUtil.ok();
     }
@@ -293,5 +308,27 @@ public class AdminOrderService {
 
         return ResponseUtil.ok();
     }
-
+    private String getForObject(String url, Object object) {
+        StringBuffer stringBuffer = new StringBuffer(url);
+        if (object instanceof Map) {
+            Iterator iterator = ((Map) object).entrySet().iterator();
+            if (iterator.hasNext()) {
+                stringBuffer.append("?");
+                Object element;
+                while (iterator.hasNext()) {
+                    element = iterator.next();
+                    Map.Entry<String, Object> entry = (Map.Entry) element;
+                    //过滤value为null，value为null时进行拼接字符串会变成 "null"字符串
+                    if (entry.getValue() != null) {
+                        stringBuffer.append(element).append("&");
+                    }
+                    url = stringBuffer.substring(0, stringBuffer.length() - 1);
+                }
+            }
+        } else {
+            throw new RuntimeException("url请求:" + url + "请求参数有误不是map类型");
+        }
+        logger.info("url请求:" + url);
+        return new RestTemplate().getForObject(url, String.class);
+    }
 }

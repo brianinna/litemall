@@ -41,6 +41,7 @@ public class AdminCourierController {
                        @RequestParam(name = "cid", required = false)Integer cid,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
+                       @RequestParam(name = "status",required = false)String status,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
 //        List<LitemallCourier> courierList = courierService.querySelective(username, page, limit, sort, order);
@@ -51,7 +52,7 @@ public class AdminCourierController {
         List<Integer[]> roleList = new ArrayList<>();
         roleList.add(new Integer[]{4});
         roleList.add(new Integer[]{4,11});
-        List<LitemallAdmin> courierList = adminService.queryCourierSelective(username, page, limit,sort, order, cid,roleList);
+        List<LitemallAdmin> courierList = adminService.queryCourierSelective(username, page, limit,sort, order, cid,roleList,status);
         return ResponseUtil.okList(courierList);
     }
 

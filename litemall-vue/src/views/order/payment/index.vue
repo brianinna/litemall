@@ -79,18 +79,24 @@ export default {
           if (isWeixin) {
             orderPrepay({ orderId: this.orderId })
               .then(res => {
-                let data = res.data.data;
-                let prepay_data = JSON.stringify({
-                  appId: data.appId,
-                  timeStamp: data.timeStamp,
-                  nonceStr: data.nonceStr,
-                  package: data.packageValue,
-                  signType: 'MD5',
-                  paySign: data.paySign
-                });
-                setLocalStorage({ prepay_data: prepay_data });
+                console.log('here')
+                if (this.order.orderInfo.actualPrice != 0) {
+                  console.log('here wrong')
 
+                  let data = res.data.data;
+                  let prepay_data = JSON.stringify({
+                    appId: data.appId,
+                    timeStamp: data.timeStamp,
+                    nonceStr: data.nonceStr,
+                    package: data.packageValue,
+                    signType: 'MD5',
+                    paySign: data.paySign
+                  });
+                  setLocalStorage({ prepay_data: prepay_data });
+                }
                 if (typeof WeixinJSBridge == 'undefined') {
+                  console.log('here brig undefinde')
+
                   if (document.addEventListener) {
                     document.addEventListener(
                       'WeixinJSBridgeReady',
@@ -108,10 +114,15 @@ export default {
                     );
                   }
                 } else {
+                  console.log('here brig undefinde else---')
                   this.onBridgeReady();
                 }
+                console.log('done')
+
               })
               .catch(err => {
+
+                console.log(err)
                 Dialog.alert({ message: err.data.errmsg });
                 that.$router.replace({
                   name: 'paymentStatus',
@@ -146,36 +157,44 @@ export default {
     },
     onBridgeReady() {
       let that = this;
-      let data = getLocalStorage('prepay_data');
-      // eslint-disable-next-line no-undef
-      WeixinJSBridge.invoke(
-        'getBrandWCPayRequest',
-        JSON.parse(data.prepay_data),
-        function (res) {
-          if (res.err_msg == 'get_brand_wcpay_request:ok') {
-            that.$router.replace({
-              name: 'paymentStatus',
-              params: {
-                status: 'success'
-              }
-            });
-          } else if (res.err_msg == 'get_brand_wcpay_request:cancel') {
-            that.$router.replace({
-              name: 'paymentStatus',
-              params: {
-                status: 'cancel'
-              }
-            });
-          } else {
-            that.$router.replace({
-              name: 'paymentStatus',
-              params: {
-                status: 'failed'
-              }
-            });
+      if (that.order.orderInfo.actualPrice == 0) {
+        that.$router.replace({
+          name: 'paymentStatus',
+          params: {
+            status: 'success'
           }
-        }
-      );
+        });
+      } else {
+        let data = getLocalStorage('prepay_data');
+        // eslint-disable-next-line no-undef
+        WeixinJSBridge.invoke(
+          'getBrandWCPayRequest',
+          JSON.parse(data.prepay_data),
+          function (res) {
+            if (res.err_msg == 'get_brand_wcpay_request:ok') {
+              that.$router.replace({
+                name: 'paymentStatus',
+                params: {
+                  status: 'success'
+                }
+              });
+            } else if (res.err_msg == 'get_brand_wcpay_request:cancel') {
+              that.$router.replace({
+                name: 'paymentStatus',
+                params: {
+                  status: 'cancel'
+                }
+              });
+            } else {
+              that.$router.replace({
+                name: 'paymentStatus',
+                params: {
+                  status: 'failed'
+                }
+              });
+            }
+          }
+        );      }
     }
   },
 

@@ -52,7 +52,7 @@ public class AdminPromoterController {
         List<Integer[]> roleList = new ArrayList<>();
         roleList.add(new Integer[]{11});
         roleList.add(new Integer[]{4,11});
-        List<LitemallAdmin> courierList = adminService.queryCourierSelective(username, page, limit,sort, order, cid,roleList);
+        List<LitemallAdmin> courierList = adminService.queryCourierSelective(username, page, limit,sort, order, cid,roleList,"");
         return ResponseUtil.okList(courierList);
     }
 
