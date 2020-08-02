@@ -9,6 +9,9 @@ import com.github.binarywang.wxpay.bean.result.BaseWxPayResult;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
 import com.github.binarywang.wxpay.service.WxPayService;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
+import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,16 +37,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.linlinjava.litemall.wx.util.WxResponseCode.*;
 
@@ -107,6 +108,12 @@ public class WxOrderService {
     private TaskService taskService;
     @Autowired
     private LitemallAftersaleService aftersaleService;
+
+    @Autowired
+    private LitemallAdminService litemallAdminService;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     /**
      * 订单列表
@@ -596,6 +603,33 @@ public class WxOrderService {
             int fee = 0;
             BigDecimal actualPrice = order.getActualPrice();
             fee = actualPrice.multiply(new BigDecimal(100)).intValue();
+            //零元账单处理
+            if (fee == 0) {
+                order.setPayId("");
+                order.setPayTime(LocalDateTime.now());
+                order.setOrderStatus(OrderUtil.STATUS_PAY);
+                if (orderService.updateWithOptimisticLocker(order) == 0) {
+                    return WxPayNotifyResponse.fail("更新数据已失效");
+                }
+                taskService.removeTask(new OrderUnpaidTask(order.getId()));
+                logger.info("发送客服信息调度");
+                LitemallAdmin customerService = litemallAdminService.findAdmin("anfeng").get(0);
+
+
+                Map<String, String> map = new HashMap();
+                map.put("orderId", order.getOrderSn());
+                map.put("time", order.getPayTime().toString());
+                map.put("openId", customerService.getOpenId());
+
+                String notice = getForObject("http://127.0.0.1:8081/order/newMessage", map);
+                logger.info("发送消息结果");
+
+                logger.info(notice);
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("errno", 200);
+                return ResponseUtil.ok(data);
+            }
             orderRequest.setTotalFee(fee);
             orderRequest.setSpbillCreateIp(IpUtil.getIpAddr(request));
 
@@ -653,6 +687,18 @@ public class WxOrderService {
             int fee = 0;
             BigDecimal actualPrice = order.getActualPrice();
             fee = actualPrice.multiply(new BigDecimal(100)).intValue();
+            if (fee == 0) {
+                order.setPayId("");
+                order.setPayTime(LocalDateTime.now());
+                order.setOrderStatus(OrderUtil.STATUS_PAY);
+                if (orderService.updateWithOptimisticLocker(order) == 0) {
+                    return WxPayNotifyResponse.fail("更新数据已失效");
+                }
+                taskService.removeTask(new OrderUnpaidTask(order.getId()));
+                logger.info("发送客服信息调度");
+                //TODO 发送客服调度信息
+                return WxPayNotifyResponse.success("处理成功!");
+            }
             orderRequest.setTotalFee(fee);
             orderRequest.setSpbillCreateIp(IpUtil.getIpAddr(request));
 
@@ -729,9 +775,43 @@ public class WxOrderService {
         order.setPayId(payId);
         order.setPayTime(LocalDateTime.now());
         order.setOrderStatus(OrderUtil.STATUS_PAY);
+
+
+        //支付成功：判断是否是vip商品，更改会员等级完成订单
+        logger.info("判断vip商品");
+        List<LitemallOrderGoods> list = orderGoodsService.queryByOid(order.getId());
+        for (int i = 0; i < list.size(); i++) {
+            LitemallOrderGoods orderGoods = list.get(i);
+            logger.info(orderGoods);
+            if (orderGoods.getGoodsSn().equals("1001002")) {//
+                logger.info("`````是VIP");
+                LitemallUser user = userService.findById(order.getUserId());
+                user.setUserLevel(new Byte("1"));
+                userService.updateById(user);
+                taskService.removeTask(new OrderUnpaidTask(order.getId()));
+                order.setOrderStatus(OrderUtil.STATUS_CONFIRM);
+                orderService.updateWithOptimisticLocker(order);
+                logger.info("订单更改成功");
+
+                return WxPayNotifyResponse.success("处理成功!");
+            }
+        }
         if (orderService.updateWithOptimisticLocker(order) == 0) {
             return WxPayNotifyResponse.fail("更新数据已失效");
         }
+
+        LitemallAdmin customerService = litemallAdminService.findAdmin("anfeng").get(0);
+        Map<String, String> map = new HashMap();
+        map.put("orderId", order.getOrderSn());
+        map.put("time", order.getPayTime().toString());
+        map.put("openId", customerService.getOpenId());
+
+        String notice = getForObject("http://127.0.0.1:8081/order/newMessage", map);
+
+        logger.info("发送消息结果");
+
+        logger.info(notice);
+
 
         //  支付成功，有团购信息，更新团购信息
         LitemallGroupon groupon = grouponService.queryByOrderId(order.getId());
@@ -1040,4 +1120,29 @@ public class WxOrderService {
             couponUserService.update(couponUser);
         }
     }
+
+    private String getForObject(String url, Object object) {
+        StringBuffer stringBuffer = new StringBuffer(url);
+        if (object instanceof Map) {
+            Iterator iterator = ((Map) object).entrySet().iterator();
+            if (iterator.hasNext()) {
+                stringBuffer.append("?");
+                Object element;
+                while (iterator.hasNext()) {
+                    element = iterator.next();
+                    Map.Entry<String, Object> entry = (Map.Entry) element;
+                    //过滤value为null，value为null时进行拼接字符串会变成 "null"字符串
+                    if (entry.getValue() != null) {
+                        stringBuffer.append(element).append("&");
+                    }
+                    url = stringBuffer.substring(0, stringBuffer.length() - 1);
+                }
+            }
+        } else {
+            throw new RuntimeException("url请求:" + url + "请求参数有误不是map类型");
+        }
+        logger.info("url请求:" + url);
+        return new RestTemplate().getForObject(url, String.class);
+    }
+
 }

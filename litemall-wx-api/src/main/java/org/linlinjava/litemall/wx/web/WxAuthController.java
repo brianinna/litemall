@@ -244,9 +244,11 @@ public class WxAuthController {
         String token = JacksonUtil.parseString(body, "token");
         String addressName = JacksonUtil.parseString(body, "receiver");
         String address = JacksonUtil.parseString(body, "address");
+        String rem = JacksonUtil.parseString(body, "rem");
         String tel = JacksonUtil.parseString(body, "tel");
         String lat = JacksonUtil.parseString(body, "lat");
         String lng = JacksonUtil.parseString(body, "lng");
+        String staus = JacksonUtil.parseString(body, "status");
 
 
         if (StringUtils.isEmpty(token) || StringUtils.isEmpty(addressName) || StringUtils.isEmpty(address)
@@ -273,6 +275,8 @@ public class WxAuthController {
         user.setNickname(addressName);
         user.setLastLoginTime(LocalDateTime.now());
         user.setLastLoginIp(IpUtil.getIpAddr(request));
+        user.setStatus(new Byte(staus));
+
         if (userService.updateById(user) == 0) {
             return ResponseUtil.updatedDataFailed();
         }
@@ -302,7 +306,15 @@ public class WxAuthController {
         address1.setDeleted(false);
         address1.setProvince("河南省");
         address1.setCity("郑州市");
-        address1.setCounty("");
+        int begin = address.indexOf("市") + 1;
+        int end = address.indexOf("区") + 1;
+        if (begin != 0 && end != 0) {
+            address1.setCounty(address.substring(begin, end));
+        } else {
+            address1.setCounty("");
+        }
+        address1.setPostalCode(rem);
+        address1.setAreaCode(lat+","+lng);
         addressService.add(address1);
 
         return ResponseUtil.ok(result);

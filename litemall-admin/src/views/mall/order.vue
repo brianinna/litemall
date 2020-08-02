@@ -69,7 +69,20 @@
     >
       <el-table-column align="center" min-width="100" label="订单编号" prop="orderSn" />
 
-      <el-table-column align="center" label="用户ID" prop="userId" />
+      <el-table-column
+        align="center"
+        label="用户信息"
+        width="250"
+        prop="userId,consignee,mobile,address"
+      >
+        <template slot-scope="scope">
+          {{ scope.row.userId }}.{{ scope.row.consignee }}
+          <br>
+          {{ scope.row.mobile }}
+          <br>
+          {{ scope.row.address }}
+        </template>
+      </el-table-column>
 
       <el-table-column align="center" label="订单状态" prop="orderStatus">
         <template slot-scope="scope">
@@ -83,7 +96,7 @@
 
       <el-table-column align="center" label="支付时间" prop="payTime" />
 
-      <el-table-column align="center" label="物流单号" prop="shipSn" />
+      <!--     <el-table-column align="center" label="物流单号" prop="shipSn" />-->
 
       <el-table-column align="center" label="物流渠道" prop="shipChannel" />
 
@@ -108,6 +121,13 @@
             size="mini"
             @click="handleShip(scope.row)"
           >发货</el-button>
+          <el-button
+            v-if="scope.row.orderStatus==301"
+            v-permission="['POST /admin/order/ship']"
+            type="primary"
+            size="mini"
+            @click="handleShip(scope.row)"
+          >转单</el-button>
           <el-button
             v-if="scope.row.orderStatus==202||scope.row.orderStatus==204"
             v-permission="['POST /admin/order/refund']"
@@ -187,7 +207,19 @@
             <span>（退款时间）{{ orderDetail.order.refundTime }}</span>
           </el-form-item>
           <el-form-item label="收货信息">
-            <span>（确认收货时间）{{ orderDetail.order.confirmTime }}</span>
+            <span>（支付时间）{{ orderDetail.order.payTime }}</span>
+            <span>（送达时间）{{ orderDetail.order.confirmTime }}</span>
+          </el-form-item>
+          <el-form-item label="桶信息">
+            <el-table :data="orderDetail.confirms" border fit highlight-current-row>
+              <el-table-column align="center" label="日期" prop="orderDate" />
+              <el-table-column align="center" label="送水" prop="orderGoodNum" />
+              <el-table-column align="center" label="本品牌桶回收" prop="originalNum" />
+              <el-table-column align="center" label="杂牌桶回收" prop="otherNum" />
+              <el-table-column align="center" label="押卡" prop="fundCardNum" />
+              <el-table-column align="center" label="押金" prop="fundPayNum" />
+              <el-table-column align="center" label="总欠桶" prop="totalOwe" />
+            </el-table>
           </el-form-item>
         </el-form>
       </section>
@@ -209,12 +241,7 @@
       >
         <el-form-item label="配送员" prop="courier">
           <el-select v-model="shipForm.courierId" placeholder="请选择">
-            <el-option
-              v-for="item in couriers"
-              :key="item.id"
-              :label="item.username"
-              :value="item.id"
-            />
+            <el-option v-for="item in couriers" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -260,7 +287,7 @@ const statusMap = {
   202: '申请退款',
   203: '已退款',
   301: '已发货',
-  401: '用户收货',
+  401: '配送成功',
   402: '系统收货'
 }
 
@@ -320,7 +347,8 @@ export default {
       orderDetail: {
         order: {},
         user: {},
-        orderGoods: []
+        orderGoods: [],
+        confirms: []
       },
       shipForm: {
         orderId: undefined,

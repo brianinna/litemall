@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 public class LitemallAdminService {
-    private final Column[] result = new Column[]{Column.id, Column.username, Column.avatar, Column.roleIds,Column.name,Column.phone,Column.cid,Column.status};
+    private final Column[] result = new Column[]{Column.id, Column.username, Column.avatar, Column.roleIds,Column.name,Column.phone,Column.cid,Column.openId,Column.status};
     @Resource
     private LitemallAdminMapper adminMapper;
 
@@ -47,7 +47,7 @@ public class LitemallAdminService {
     }
 
 
-    public List<LitemallAdmin> queryCourierSelective(String username, Integer page, Integer limit, String sort, String order, Integer cid,  List<Integer[]>roleList) {
+    public List<LitemallAdmin> queryCourierSelective(String username, Integer page, Integer limit, String sort, String order, Integer cid,  List<Integer[]>roleList,String status) {
 
         LitemallAdminExample example = new LitemallAdminExample();
         LitemallAdminExample.Criteria criteria = example.createCriteria();
@@ -60,6 +60,11 @@ public class LitemallAdminService {
         criteria.andRoleIdsIn(roleList);
         if (null != cid && cid > 0) {
             criteria.andCidEqualTo(cid);
+        }
+
+
+        if (!StringUtils.isEmpty(status)) {
+            criteria.andStatusEqualTo(status);
         }
 
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {

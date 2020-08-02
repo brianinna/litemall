@@ -104,8 +104,8 @@
             style="padding-left: 20px;position: relative;bottom: 10px; color: rgb(123, 116, 116);white-space: nowrap;"
           >{{newGood.name}}</span>
           <span
-            style="padding-left: 80px;position: relative;bottom: 10px; color:#ab956d"
-          >￥ {{newGood.retailPrice}}</span>
+            style="padding-left: 60px;position: relative;bottom: 10px; color:#ab956d"
+          >线下原价￥ {{newGood.retailPrice}}</span>
         </van-col>
       </van-row>
       <div slot="header">

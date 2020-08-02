@@ -24,6 +24,22 @@ public class LitemallGoodsProductService {
         return litemallGoodsProductMapper.selectByExample(example);
     }
 
+    public List<LitemallGoodsProduct> queryByGidCustomize(Integer gid, String userLevel, String status) {
+        LitemallGoodsProductExample example = new LitemallGoodsProductExample();
+        example.or().andGoodsIdEqualTo(gid).andDeletedEqualTo(false);
+        List<LitemallGoodsProduct> original =  litemallGoodsProductMapper.selectByExample(example);
+        if (original.size() == 1) {
+            return original;
+        }else {
+            String value = userLevel + status;
+            String array[] = {value};
+            LitemallGoodsProductExample example1 = new LitemallGoodsProductExample();
+            example1.or().andGoodsIdEqualTo(gid).andDeletedEqualTo(false).andSpecificationsEqualTo(array);
+            return litemallGoodsProductMapper.selectByExample(example1);
+        }
+    }
+
+
     public LitemallGoodsProduct findById(Integer id) {
         return litemallGoodsProductMapper.selectByPrimaryKey(id);
     }
