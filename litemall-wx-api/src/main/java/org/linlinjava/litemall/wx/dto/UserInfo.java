@@ -8,6 +8,25 @@ public class UserInfo {
     private String city;
     private String language;
     private Byte gender;
+    private Integer addressId;
+    private Integer userLevel;
+    private String balance;
+
+    public Integer getUserLevel() {
+        return userLevel;
+    }
+
+    public void setUserLevel(Integer userLevel) {
+        this.userLevel = userLevel;
+    }
+
+    public String getBalance() {
+        return balance;
+    }
+
+    public void setBalance(String balance) {
+        this.balance = balance;
+    }
 
     public String getCountry() {
         return country;
@@ -63,5 +82,13 @@ public class UserInfo {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public Integer getAddressId() {
+        return addressId;
+    }
+
+    public void setAddressId(Integer addressId) {
+        this.addressId = addressId;
     }
 }

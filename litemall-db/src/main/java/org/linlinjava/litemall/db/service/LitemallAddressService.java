@@ -69,10 +69,12 @@ public class LitemallAddressService {
             criteria.andNameLike("%" + name + "%");
         }
         criteria.andDeletedEqualTo(false);
+        criteria.andIsDefaultEqualTo(true);
 
         if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
             example.setOrderByClause(sort + " " + order);
         }
+
 
         PageHelper.startPage(page, limit);
         return addressMapper.selectByExample(example);

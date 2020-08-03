@@ -23,6 +23,16 @@
         style="width: 160px;"
         placeholder="请输入订单编号"
       />
+      <el-select
+        v-model="listQuery.orderStatusArray"
+        multiple
+        style="width: 200px"
+        class="filter-item"
+        placeholder="请选择订单状态"
+      >
+        <el-option v-for="(key, value) in statusMap" :key="key" :label="key" :value="value" />
+      </el-select>
+      <el-option v-for="(key, value) in employeeDic" :key="key" :label="key" :value="value" />
       <el-date-picker
         v-model="listQuery.timeArray"
         type="datetimerange"

@@ -13,9 +13,11 @@ import org.linlinjava.litemall.core.util.RegexUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
 import org.linlinjava.litemall.db.domain.LitemallAddress;
+import org.linlinjava.litemall.db.domain.LitemallCredit;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.CouponAssignService;
 import org.linlinjava.litemall.db.service.LitemallAddressService;
+import org.linlinjava.litemall.db.service.LitemallCreditService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.UserInfo;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +64,8 @@ public class WxAuthController {
 
     @Autowired
     private LitemallAddressService addressService;
+    @Autowired
+    private LitemallCreditService creditService;
 
 
     /**
@@ -104,7 +109,12 @@ public class WxAuthController {
         UserInfo userInfo = new UserInfo();
         userInfo.setNickName(user.getNickname());
         userInfo.setAvatarUrl(user.getAvatar());
-
+        userInfo.setUserLevel(user.getUserLevel().intValue());
+        Long balance = creditService.queryBalance(user.getId());
+        if ( balance > 0) {
+            BigDecimal b = (BigDecimal.valueOf(balance)).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+            userInfo.setBalance(b.toString());
+        }
         // token
         String tokenVue = UserTokenManager.generateToken(user.getId());
 
@@ -157,6 +167,7 @@ public class WxAuthController {
             user.setLastLoginTime(LocalDateTime.now());
             user.setLastLoginIp(IpUtil.getIpAddr(request));
             user.setSessionKey(sessionKey);
+            user.setAddTime(LocalDateTime.now());
 
             userService.add(user);
 
@@ -257,7 +268,6 @@ public class WxAuthController {
         }
 
 
-
         String openId = "";
 
 
@@ -288,6 +298,7 @@ public class WxAuthController {
         UserInfo userInfo = new UserInfo();
         userInfo.setNickName(addressName);
         userInfo.setAvatarUrl(user.getAvatar());
+        userInfo.setAddressId(user.getId());
 
         // token
         String tokenVue = UserTokenManager.generateToken(user.getId());
@@ -306,6 +317,7 @@ public class WxAuthController {
         address1.setDeleted(false);
         address1.setProvince("河南省");
         address1.setCity("郑州市");
+        address1.setIsDefault(true);
         int begin = address.indexOf("市") + 1;
         int end = address.indexOf("区") + 1;
         if (begin != 0 && end != 0) {
@@ -314,7 +326,7 @@ public class WxAuthController {
             address1.setCounty("");
         }
         address1.setPostalCode(rem);
-        address1.setAreaCode(lat+","+lng);
+        address1.setAreaCode(lat + "," + lng);
         addressService.add(address1);
 
         return ResponseUtil.ok(result);
@@ -549,6 +561,12 @@ public class WxAuthController {
         data.put("avatar", user.getAvatar());
         data.put("gender", user.getGender());
         data.put("mobile", user.getMobile());
+        data.put("userLevel", user.getUserLevel());
+        Long balance = creditService.queryBalance(userId);
+        if (balance> 0) {
+            BigDecimal b = (BigDecimal.valueOf(balance)).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+            data.put("balance", b.toString());
+        }
 
         return ResponseUtil.ok(data);
     }

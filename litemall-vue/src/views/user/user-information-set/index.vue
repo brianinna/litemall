@@ -8,15 +8,15 @@
               :src="avatar + '?x-oss-process=image/resize,m_fill,h_50,w_50'"
               alt="你的头像"
               v-if="avatar"
-            >
+            />
             <van-icon name="camera_full" v-else></van-icon>
           </div>
         </van-uploader>
       </van-cell>
 
-      <van-cell title="昵称" to="/user/information/setNickname" :value="nickName" isLink/>
-      <van-cell title="性别" :value="genderText" @click="showSex = true" isLink/>
-      <van-cell title="密码设置" to="/user/information/setPassword" isLink/>
+      <van-cell title="昵称" to="/user/information/setNickname" :value="nickName" isLink />
+      <van-cell title="性别" :value="genderText" @click="showSex = true" isLink />
+      <van-cell title="密码设置" to="/user/information/setPassword" isLink />
       <van-cell title="手机号" to="/user/information/setMobile" :value="mobile" isLink></van-cell>
     </van-cell-group>
 
@@ -53,7 +53,9 @@ export default {
       avatar: '',
       nickName: '',
       gender: 0,
-      mobile: ''
+      mobile: '',
+      userLevel: 0,
+      balance: "0.00"
     };
   },
 
@@ -81,6 +83,8 @@ export default {
         this.nickName = res.data.data.nickName;
         this.gender = res.data.data.gender;
         this.mobile = res.data.data.mobile;
+        this.userLevel = res.data.data.userLevel;
+        this.balance = res.data.data.balance;
       })
     },
     loginOut() {

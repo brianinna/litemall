@@ -81,7 +81,8 @@ export default {
         setLocalStorage({
           Authorization: res.data.data.token,
           avatar: this.userInfo.avatarUrl,
-          nickName: this.userInfo.nickName
+          nickName: this.userInfo.nickName,
+          AddressId: this.userInfo.AddressId
         });
 
         this.routerRedirect();

@@ -1,33 +1,37 @@
 <template>
-<div class="order">
-  <van-cell-group>
+  <div class="order">
+    <van-cell-group>
       <van-cell v-if="checkedAddress" isLink @click="goAddressList()" title="收货地址">
-      <div slot="label">
-        <div>
-         <span>{{ checkedAddress.name }} </span>
-         <span>{{ checkedAddress.tel }} </span>
-      </div>
-      <div>
-        {{ checkedAddress.addressDetail }}
-      </div>
-      </div>
-    </van-cell>
-  </van-cell-group>
+        <div slot="label">
+          <div>
+            <span>{{ checkedAddress.name }}</span>
+            <span>{{ checkedAddress.tel }}</span>
+          </div>
+          <div>{{ checkedAddress.addressDetail }}</div>
+        </div>
+      </van-cell>
+    </van-cell-group>
 
-  <van-cell-group>
-    <van-cell class="order-coupon" title="优惠券" is-link :value="getCouponValue()" @click="getCoupons" />
-  </van-cell-group>
+    <van-cell-group>
+      <van-cell
+        class="order-coupon"
+        title="优惠券"
+        is-link
+        :value="getCouponValue()"
+        @click="getCoupons"
+      />
+    </van-cell-group>
 
-<!-- 优惠券列表 -->
-<van-popup v-model="showList" position="bottom">
-  <van-coupon-list
-    :coupons="coupons"
-    :chosen-coupon="chosenCoupon"
-    :disabled-coupons="disabledCoupons"
-    @change="onChange"
-    @exchange="onExchange"
-  />
-</van-popup>
+    <!-- 优惠券列表 -->
+    <van-popup v-model="showList" position="bottom">
+      <van-coupon-list
+        :coupons="coupons"
+        :chosen-coupon="chosenCoupon"
+        :disabled-coupons="disabledCoupons"
+        @change="onChange"
+        @exchange="onExchange"
+      />
+    </van-popup>
 
     <van-card
       v-for="item in checkedGoodsList"
@@ -39,9 +43,12 @@
     >
       <div slot="desc">
         <div class="van-card__desc">
-          <van-tag plain style="margin-right:6px;" v-for="(spec, index) in item.specifications" :key="index">
-            {{spec}}
-          </van-tag>
+          <van-tag
+            plain
+            style="margin-right:6px;"
+            v-for="(spec, index) in item.specifications"
+            :key="index"
+          >{{spec}}</van-tag>
         </div>
       </div>
     </van-card>
@@ -57,8 +64,8 @@
         <span class="red">-{{ couponPrice * 100| yuan}}</span>
       </van-cell>
       <van-field v-model="message" placeholder="请输入备注" label="订单备注">
-      <template slot="icon">{{message.length}}/50</template>
-      </van-field>      
+        <template slot="icon">{{message.length}}/50</template>
+      </van-field>
     </van-cell-group>
 
     <van-submit-bar
@@ -68,13 +75,13 @@
       :disabled="isDisabled"
       @submit="onSubmit"
     />
-</div>
+  </div>
 </template>
 
 <script>
-import { Card, Tag, ard, Field, SubmitBar, Toast  } from 'vant';
+import { Card, Tag, ard, Field, SubmitBar, Toast } from 'vant';
 import { CouponCell, CouponList, Popup } from 'vant';
-import { cartCheckout, orderSubmit, couponSelectList} from '@/api/api';
+import { cartCheckout, orderSubmit, couponSelectList } from '@/api/api';
 import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 import dayjs from 'dayjs';
 
@@ -96,7 +103,7 @@ export default {
       showList: false,
       chosenCoupon: -1,
       coupons: [],
-      disabledCoupons: [] 
+      disabledCoupons: []
     };
   },
   created() {
@@ -104,8 +111,8 @@ export default {
   },
 
   methods: {
-    onSubmit() {     
-      const {AddressId, CartId, CouponId, UserCouponId} = getLocalStorage('AddressId', 'CartId', 'CouponId', 'UserCouponId');
+    onSubmit() {
+      const { AddressId, CartId, CouponId, UserCouponId } = getLocalStorage('AddressId', 'CartId', 'CouponId', 'UserCouponId');
 
       if (AddressId === null) {
         Toast.fail('请设置收货地址');
@@ -124,9 +131,9 @@ export default {
         grouponRulesId: 0,
         message: this.message
       }).then(res => {
-        
+
         // 下单成功，重置下单参数。
-        setLocalStorage({AddressId: 0, CartId: 0, CouponId: 0});
+        setLocalStorage({ CartId: 0, CouponId: 0 });
 
         let orderId = res.data.data.orderId;
         this.$router.push({
@@ -145,21 +152,21 @@ export default {
       });
     },
     getCouponValue() {
-      if(this.couponPrice !== 0 ){
+      if (this.couponPrice !== 0) {
         return "-¥" + this.couponPrice + ".00元"
       }
-      if(this.availableCouponLength !== 0){
+      if (this.availableCouponLength !== 0) {
         return this.availableCouponLength + "张可用"
       }
       return '没有可用优惠券'
     },
     getCoupons() {
-      const {AddressId, CartId, CouponId} = getLocalStorage('AddressId', 'CartId', 'CouponId');
-      couponSelectList({cartId: CartId, grouponRulesId: 0}).then(res => {
+      const { AddressId, CartId, CouponId } = getLocalStorage('AddressId', 'CartId', 'CouponId');
+      couponSelectList({ cartId: CartId, grouponRulesId: 0 }).then(res => {
         var cList = res.data.data.list;
         this.coupons = []
         this.disabledCoupons = [];
-        for(var i = 0; i < cList.length; i++){
+        for (var i = 0; i < cList.length; i++) {
           var c = cList[i]
 
           var coupon = {
@@ -169,10 +176,10 @@ export default {
             condition: '满' + c.min + '元可用',
             value: c.discount * 100,
             description: c.desc,
-            startAt: new Date(c.startTime).getTime()/1000,
-            endAt: new Date(c.endTime).getTime()/1000,
+            startAt: new Date(c.startTime).getTime() / 1000,
+            endAt: new Date(c.endTime).getTime() / 1000,
             valueDesc: c.discount,
-            unitDesc: '元'            
+            unitDesc: '元'
           }
           if (c.available) {
             this.coupons.push(coupon);
@@ -180,52 +187,52 @@ export default {
             this.disabledCoupons.push(coupon);
           }
         }
-        
+
         this.showList = true
       })
     },
     init() {
-      const {AddressId, CartId, CouponId, UserCouponId} = getLocalStorage('AddressId', 'CartId', 'CouponId', 'UserCouponId');
+      const { AddressId, CartId, CouponId, UserCouponId } = getLocalStorage('AddressId', 'CartId', 'CouponId', 'UserCouponId');
 
-      cartCheckout({cartId: CartId, addressId: AddressId, couponId: CouponId, userCouponId: UserCouponId, grouponRulesId: 0}).then(res => {
-          var data = res.data.data
+      cartCheckout({ cartId: CartId, addressId: AddressId, couponId: CouponId, userCouponId: UserCouponId, grouponRulesId: 0 }).then(res => {
+        var data = res.data.data
 
-          this.checkedGoodsList = data.checkedGoodsList;
-          this.checkedAddress= data.checkedAddress;
-          this.availableCouponLength= data.availableCouponLength;
-          this.actualPrice= data.actualPrice;
-          this.couponPrice= data.couponPrice;
-          this.grouponPrice= data.grouponPrice;
-          this.freightPrice= data.freightPrice;
-          this.goodsTotalPrice= data.goodsTotalPrice;
-          this.orderTotalPrice= data.orderTotalPrice;
+        this.checkedGoodsList = data.checkedGoodsList;
+        this.checkedAddress = data.checkedAddress;
+        this.availableCouponLength = data.availableCouponLength;
+        this.actualPrice = data.actualPrice;
+        this.couponPrice = data.couponPrice;
+        this.grouponPrice = data.grouponPrice;
+        this.freightPrice = data.freightPrice;
+        this.goodsTotalPrice = data.goodsTotalPrice;
+        this.orderTotalPrice = data.orderTotalPrice;
 
-          setLocalStorage({AddressId: data.addressId, CartId: data.cartId, CouponId: data.couponId, UserCouponId: data.userCouponId});
+        setLocalStorage({ AddressId: data.addressId, CartId: data.cartId, CouponId: data.couponId, UserCouponId: data.userCouponId });
       });
 
     },
     onChange(index) {
       this.showList = false;
       this.chosenCoupon = index;
-      
-      if(index === -1 ){
-        setLocalStorage({CouponId: -1, UserCouponId: -1});
+
+      if (index === -1) {
+        setLocalStorage({ CouponId: -1, UserCouponId: -1 });
       }
-      else{
+      else {
         const couponId = this.coupons[index].cid;
         const userCouponId = this.coupons[index].id;
-        setLocalStorage({CouponId: couponId, UserCouponId: userCouponId});
+        setLocalStorage({ CouponId: couponId, UserCouponId: userCouponId });
       }
 
       this.init()
     },
     onExchange() {
       this.$toast("兑换暂不支持");
-    }    
+    }
   },
 
   components: {
-    [Toast.name]: Toast ,
+    [Toast.name]: Toast,
     [SubmitBar.name]: SubmitBar,
     [Card.name]: Card,
     [Field.name]: Field,

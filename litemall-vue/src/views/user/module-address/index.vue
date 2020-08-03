@@ -1,6 +1,12 @@
 <template>
   <div>
-    <van-address-list v-model="chosenAddressId" :list="addressList" @add="onAdd" @edit="onEdit" @select="onSelect"/>
+    <van-address-list
+      v-model="chosenAddressId"
+      :list="addressList"
+      @add="onAdd"
+      @edit="onEdit"
+      @select="onSelect"
+    />
   </div>
 </template>
 
@@ -22,7 +28,12 @@ export default {
   },
   methods: {
     onAdd() {
-      this.$router.push({ name: 'address-edit', query: { addressId: -1 } });
+      /*      this.$router.push({ name: 'address-edit', query: { addressId: -1 } });
+       */
+      this.$toast({
+        message: '暂时不支持添加地址',
+        duration: 1500
+      });
     },
     onEdit(item, index) {
       this.$router.push({ name: 'address-edit', query: { addressId: item.id } });
@@ -30,14 +41,14 @@ export default {
     onSelect(item, index) {
       setLocalStorage({ AddressId: item.id });
       this.$router.go(-1);
-    },         
+    },
     goback() {
       this.$router.go(-1);
     },
     loadAddress() {
       addressList().then(res => {
         var list = res.data.data.list;
-        for(var i = 0; i < list.length; i++ ){
+        for (var i = 0; i < list.length; i++) {
           var item = list[i]
           this.addressList.push({
             id: item.id,
@@ -52,7 +63,7 @@ export default {
 
   components: {
     [NavBar.name]: NavBar,
-    [AddressList.name]: AddressList 
+    [AddressList.name]: AddressList
   }
 };
 </script>

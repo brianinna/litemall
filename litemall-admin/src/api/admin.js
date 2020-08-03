@@ -39,3 +39,18 @@ export function deleteAdmin(data) {
     data
   })
 }
+
+export function findNames() {
+  return request({
+    url: '/admin/nameList',
+    method: 'get'
+  })
+}
+
+export function updateAddress(query) {
+  return request({
+    url: '/address/update',
+    method: 'post',
+    params: query
+  })
+}

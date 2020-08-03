@@ -139,4 +139,12 @@ public class AdminAdminController {
         logHelper.logAuthSucceed("删除管理员", admin.getUsername());
         return ResponseUtil.ok();
     }
+
+    @GetMapping("nameList")
+    public Object nameList(){
+        List<String> result = adminService.findNames();
+        result.add(0, "无推荐人");
+        return  ResponseUtil.ok(result);
+    }
+
 }

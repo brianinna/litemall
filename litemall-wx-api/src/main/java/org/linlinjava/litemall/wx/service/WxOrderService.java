@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -114,6 +115,8 @@ public class WxOrderService {
 
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private LitemallCreditService creditService;
 
     /**
      * 订单列表
@@ -265,6 +268,16 @@ public class WxOrderService {
         Integer grouponRulesId = JacksonUtil.parseInteger(body, "grouponRulesId");
         Integer grouponLinkId = JacksonUtil.parseInteger(body, "grouponLinkId");
 
+        // 收货地址
+        LitemallAddress checkedAddress = addressService.query(userId, addressId);
+        if (checkedAddress == null) {
+            return ResponseUtil.badArgument();
+        }
+
+        if (message.equals("会员充值")) {
+            return submitAddCreditOrder(userId,checkedAddress, cartId.toString());
+        }
+
         //如果是团购项目,验证活动是否有效
         if (grouponRulesId != null && grouponRulesId > 0) {
             LitemallGrouponRules rules = grouponRulesService.findById(grouponRulesId);
@@ -310,11 +323,6 @@ public class WxOrderService {
             return ResponseUtil.badArgument();
         }
 
-        // 收货地址
-        LitemallAddress checkedAddress = addressService.query(userId, addressId);
-        if (checkedAddress == null) {
-            return ResponseUtil.badArgument();
-        }
 
         // 团购优惠
         BigDecimal grouponPrice = new BigDecimal(0);
@@ -364,11 +372,28 @@ public class WxOrderService {
             freightPrice = SystemConfig.getFreight();
         }
 
-        // 可以使用的其他钱，例如用户积分
-        BigDecimal integralPrice = new BigDecimal(0);
-
         // 订单费用
         BigDecimal orderTotalPrice = checkedGoodsPrice.add(freightPrice).subtract(couponPrice).max(new BigDecimal(0));
+
+        // 客户余额
+        BigDecimal integralPrice = new BigDecimal(0);
+        Long balance = creditService.queryBalance(userId);
+
+
+            if (balance > 0) {
+                BigDecimal balanceBigD = BigDecimal.valueOf(balance);
+                balanceBigD = balanceBigD.divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+
+                //余额够支付
+                if (orderTotalPrice.compareTo(balanceBigD) < 1) {
+                    integralPrice = orderTotalPrice;
+                }else {
+                    integralPrice = orderTotalPrice.subtract(balanceBigD);
+                }
+            }
+
+
+
         // 最终支付费用
         BigDecimal actualPrice = orderTotalPrice.subtract(integralPrice);
 
@@ -593,8 +618,31 @@ public class WxOrderService {
         if (openid == null) {
             return ResponseUtil.fail(AUTH_OPENID_UNACCESS, "订单不能支付");
         }
+
+        //检测余额是否够
+        if(order.getIntegralPrice().compareTo(BigDecimal.ZERO ) > 0){
+            Long balance = creditService.queryBalance(userId);
+            BigDecimal balanceBigD = BigDecimal.valueOf(balance);
+            balanceBigD = balanceBigD.divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+            if (balanceBigD.compareTo(order.getIntegralPrice()) < 0) {
+                return ResponseUtil.fail(AUTH_OPENID_UNACCESS, "订单不能支付,余额不足");
+            }else {
+                //更新余额
+                LitemallCredit credit = new LitemallCredit();
+                credit.setUserId(user.getId());
+                credit.setAmount((order.getIntegralPrice().multiply(new BigDecimal("100"))).longValue());
+                credit.setDc(-1);
+                credit.setContent("订单消费："+order.getOrderSn());
+                credit.setCreateTime(LocalDateTime.now());
+                credit.setUpdateTime(LocalDateTime.now());
+                creditService.add(credit);
+            }
+        }
         WxPayMpOrderResult result = null;
         try {
+
+
+
             WxPayUnifiedOrderRequest orderRequest = new WxPayUnifiedOrderRequest();
             orderRequest.setOutTradeNo(order.getOrderSn());
             orderRequest.setOpenid(openid);
@@ -792,6 +840,30 @@ public class WxOrderService {
                 order.setOrderStatus(OrderUtil.STATUS_CONFIRM);
                 orderService.updateWithOptimisticLocker(order);
                 logger.info("订单更改成功");
+
+                return WxPayNotifyResponse.success("处理成功!");
+            }
+            //会员充值
+            if (orderGoods.getGoodsSn().equals("0")) {//
+                logger.info("`````是余额充值");
+                LitemallUser user = userService.findById(order.getUserId());
+                if(result.getTotalFee() >= 20000 && !user.getUserLevel().equals(new Byte("1"))){
+                    user.setUserLevel(new Byte("1"));
+                    userService.updateById(user);
+                }
+                //增加余额
+                LitemallCredit credit = new LitemallCredit();
+                credit.setUserId(user.getId());
+                credit.setAmount(Long.valueOf(result.getTotalFee()));
+                credit.setDc(1);
+                credit.setContent("会员余额充值");
+                credit.setCreateTime(LocalDateTime.now());
+                credit.setUpdateTime(LocalDateTime.now());
+                creditService.add(credit);
+                taskService.removeTask(new OrderUnpaidTask(order.getId()));
+                order.setOrderStatus(OrderUtil.STATUS_CONFIRM);
+                orderService.updateWithOptimisticLocker(order);
+                logger.info("会员余额充值成功");
 
                 return WxPayNotifyResponse.success("处理成功!");
             }
@@ -1143,6 +1215,72 @@ public class WxOrderService {
         }
         logger.info("url请求:" + url);
         return new RestTemplate().getForObject(url, String.class);
+    }
+
+    /**
+     * 会员充值订单
+     */
+    private Object submitAddCreditOrder(Integer userId,LitemallAddress checkedAddress, String money) {
+        // 货品价格
+
+        // 订单费用
+        BigDecimal orderTotalPrice = new BigDecimal(money);
+        // 最终支付费用
+        BigDecimal actualPrice = new BigDecimal(money);
+
+        Integer orderId = null;
+        LitemallOrder order = null;
+
+
+        LitemallUser user = userService.findById(userId);
+        Integer cid = user.getCid();
+        // 订单
+        order = new LitemallOrder();
+        order.setUserId(userId);
+        order.setOrderSn(orderService.generateOrderSn(userId));
+        order.setOrderStatus(OrderUtil.STATUS_CREATE);
+        order.setConsignee(checkedAddress.getName());
+        order.setMobile(checkedAddress.getTel());
+        order.setMessage("");
+        order.setAddress(checkedAddress.getAddressDetail());
+        order.setGoodsPrice(orderTotalPrice);
+        order.setFreightPrice(BigDecimal.ZERO);
+        order.setCouponPrice(BigDecimal.ZERO);
+        order.setIntegralPrice(BigDecimal.ZERO);
+        order.setOrderPrice(orderTotalPrice);
+        order.setActualPrice(actualPrice);
+        order.setCid(cid);
+        order.setGrouponPrice(BigDecimal.ZERO);
+        // 添加订单表项
+        orderService.add(order);
+        orderId = order.getId();
+
+        // 添加订单商品表项
+        // 订单商品
+        LitemallOrderGoods orderGoods = new LitemallOrderGoods();
+        orderGoods.setOrderId(order.getId());
+        orderGoods.setGoodsId(0);
+        orderGoods.setGoodsSn("0");
+        orderGoods.setProductId(0);
+        orderGoods.setGoodsName("余额充值");
+        orderGoods.setPicUrl("cartGoods.getPicUrl()");
+        orderGoods.setPrice(BigDecimal.ZERO);
+        orderGoods.setNumber(new Short("0"));
+        String[] spec = new String[1];
+        orderGoods.setSpecifications(spec);
+        orderGoods.setAddTime(LocalDateTime.now());
+        orderGoods.setCid(cid);
+        orderGoodsService.add(orderGoods);
+
+
+        // 订单支付超期任务
+        taskService.addTask(new OrderUnpaidTask(orderId));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("orderId", orderId);
+
+        return ResponseUtil.ok(data);
+
     }
 
 }

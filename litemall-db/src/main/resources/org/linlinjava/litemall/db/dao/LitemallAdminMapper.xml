@@ -587,4 +587,11 @@
     update litemall_admin set deleted = 1
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+
+  <select id="findNames" parameterType="map" resultType="java.lang.String">
+    select
+    `name`
+    from litemall_admin
+  </select>
 </mapper>

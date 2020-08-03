@@ -30,12 +30,12 @@ public class AdminUserController {
     @RequiresPermissions("admin:user:list")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(String username, String mobile,
+    public Object list(String username, String mobile,String promoter,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallUser> userList = userService.querySelective(username, mobile, page, limit, sort, order);
+        List<LitemallUser> userList = userService.querySelective(username, mobile, promoter,page, limit, sort, order);
         return ResponseUtil.okList(userList);
     }
 }

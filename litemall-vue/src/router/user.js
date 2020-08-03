@@ -15,6 +15,7 @@ const UserOrderList = () => import('@/views/user/order-list');
 const UserCouponList = () => import('@/views/user/coupon-list');
 const UserRefundList = () => import('@/views/user/refund-list');
 
+const UserPay = () => import('@/views/user/userPay');
 const Tabbar = () => import('@/components/Tabbar/');
 
 export default [
@@ -24,8 +25,8 @@ export default [
     meta: {
       keepAlive: true,
       login: true,
-      showHeader:false,
-      title:"购物车"
+      showHeader: false,
+      title: "购物车"
     },
     components: { default: tab_user, tabbar: Tabbar }
   },
@@ -55,6 +56,15 @@ export default [
     component: UserAddressEdit
   },
   {
+    path: '/user/pay',
+    name: 'user-pay',
+    props: true,
+    meta: {
+      login: true
+    },
+    component: UserPay
+  },
+  {
     path: '/user/server',
     name: 'user-server',
     component: UserServer
@@ -68,7 +78,7 @@ export default [
     path: '/user/feedback',
     name: 'user-feedback',
     component: UserFeedback
-  },  
+  },
   {
     path: '/user/information',
     name: 'user-information',

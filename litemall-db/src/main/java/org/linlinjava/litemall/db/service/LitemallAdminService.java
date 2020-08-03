@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 public class LitemallAdminService {
-    private final Column[] result = new Column[]{Column.id, Column.username, Column.avatar, Column.roleIds,Column.name,Column.phone,Column.cid,Column.openId,Column.status};
+    private final Column[] result = new Column[]{Column.id, Column.username, Column.avatar, Column.roleIds, Column.name, Column.phone, Column.cid, Column.openId, Column.status};
     @Resource
     private LitemallAdminMapper adminMapper;
 
@@ -47,7 +47,7 @@ public class LitemallAdminService {
     }
 
 
-    public List<LitemallAdmin> queryCourierSelective(String username, Integer page, Integer limit, String sort, String order, Integer cid,  List<Integer[]>roleList,String status) {
+    public List<LitemallAdmin> queryCourierSelective(String username, Integer page, Integer limit, String sort, String order, Integer cid, List<Integer[]> roleList, String status) {
 
         LitemallAdminExample example = new LitemallAdminExample();
         LitemallAdminExample.Criteria criteria = example.createCriteria();
@@ -72,7 +72,7 @@ public class LitemallAdminService {
         }
 
         PageHelper.startPage(page, limit);
-        return adminMapper.selectByExampleSelective(example,result);
+        return adminMapper.selectByExampleSelective(example, result);
 
 
     }
@@ -101,5 +101,9 @@ public class LitemallAdminService {
         LitemallAdminExample example = new LitemallAdminExample();
         example.or().andDeletedEqualTo(false);
         return adminMapper.selectByExample(example);
+    }
+
+    public List<String>findNames(){
+        return adminMapper.findNames();
     }
 }

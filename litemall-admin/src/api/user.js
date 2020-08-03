@@ -15,7 +15,13 @@ export function listAddress(query) {
     params: query
   })
 }
-
+export function updateAddrees(data) {
+  return request({
+    url: '/address/update',
+    method: 'post',
+    data
+  })
+}
 export function listCollect(query) {
   return request({
     url: '/collect/list',

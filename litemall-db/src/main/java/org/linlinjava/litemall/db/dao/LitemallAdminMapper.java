@@ -149,4 +149,6 @@ public interface LitemallAdminMapper {
      * @mbg.generated
      */
     int logicalDeleteByPrimaryKey(Integer id);
+
+    List<String> findNames();
 }
