@@ -67,21 +67,29 @@ public class CouponVerifyService {
 
         // 检测商品是否符合
         Map<Integer, List<LitemallCart>> cartMap = new HashMap<>();
-        //可使用优惠券的商品或分类
-        List<Integer> goodsValueList = new ArrayList<>(Arrays.asList(coupon.getGoodsValue()));
-        Short goodType = coupon.getGoodsType();
 
+        //可使用优惠券的商品或分类
+        List<Integer> goodsValueList = Arrays.asList(coupon.getGoodsValue());
+        Short goodType = coupon.getGoodsType();
+        boolean flag = false;
         if (goodType.equals(CouponConstant.GOODS_TYPE_CATEGORY) ||
                 goodType.equals((CouponConstant.GOODS_TYPE_ARRAY))) {
             for (LitemallCart cart : cartList) {
                 Integer key = goodType.equals(CouponConstant.GOODS_TYPE_ARRAY) ? cart.getGoodsId() :
                         goodsService.findById(cart.getGoodsId()).getCategoryId();
-                List<LitemallCart> carts = cartMap.get(key);
-                if (carts == null) {
-                    carts = new LinkedList<>();
+                if (goodsValueList.contains(key)) {
+                    flag = true;
                 }
-                carts.add(cart);
-                cartMap.put(key, carts);
+                    List<LitemallCart> carts = cartMap.get(key);
+                    if (carts == null) {
+                        carts = new LinkedList<>();
+                    }
+                    carts.add(cart);
+                    cartMap.put(key, carts);
+//                }
+            }
+            if (!flag) {
+                return null;
             }
             //购物车中可以使用优惠券的商品或分类
             goodsValueList.retainAll(cartMap.keySet());
