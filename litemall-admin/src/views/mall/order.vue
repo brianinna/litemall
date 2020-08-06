@@ -24,6 +24,14 @@
         placeholder="请输入订单编号"
       />
       <el-select
+        v-model="listQuery.message"
+        style="width: 200px"
+        class="filter-item"
+        placeholder="请选择推荐人"
+      >
+        <el-option v-for="(key) in employeeDic" :key="key" :label="key" :value="key" />
+      </el-select>
+      <el-select
         v-model="listQuery.orderStatusArray"
         multiple
         style="width: 200px"
@@ -103,12 +111,17 @@
       <el-table-column align="center" label="订单金额" prop="orderPrice" />
 
       <el-table-column align="center" label="支付金额" prop="actualPrice" />
-
-      <el-table-column align="center" label="支付时间" prop="payTime" />
+      <el-table-column align="center" label="支付方式">
+        <template slot-scope="scope">
+          <el-tag>{{ scope.row | paymentTypeFilter }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="支付时间" prop="payTime" min-width="110" />
 
       <!--     <el-table-column align="center" label="物流单号" prop="shipSn" />-->
-
-      <el-table-column align="center" label="物流渠道" prop="shipChannel" />
+      <el-table-column align="center" label="推荐人" prop="message" />
+      <el-table-column align="center" label="配送员" prop="shipChannel" />
+      <el-table-column align="center" label="送达时间" prop="goodConfirm.orderTime" />
 
       <el-table-column align="center" label="操作" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
@@ -288,6 +301,7 @@ import { detailOrder, listOrder, refundOrder, deleteOrder, shipOrder } from '@/a
 import { fetchList } from '@/api/courier'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import checkPermission from '@/utils/permission' // 权限判断函数
+import { findNames } from '@/api/admin'
 
 const statusMap = {
   101: '未付款',
@@ -307,6 +321,14 @@ export default {
   filters: {
     orderStatusFilter(status) {
       return statusMap[status]
+    }, paymentTypeFilter(row) {
+      if (row.actualPrice > 0) {
+        return '微信支付'
+      } else if (row.couponPrice > 0) {
+        return '新用户体验'
+      } else {
+        return '余额支付'
+      }
     }
   },
   data() {
@@ -323,8 +345,11 @@ export default {
         orderStatusArray: [],
         sort: 'add_time',
         order: 'desc',
-        orderId: undefined
+        orderId: undefined,
+        message: undefined
       },
+      employeeDic: undefined,
+
       pickerOptions: {
         shortcuts: [{
           text: '最近一周',
@@ -375,6 +400,7 @@ export default {
     }
   },
   created() {
+    this.getPromoters()
     this.getList()
     this.getCouriers()
   },
@@ -413,6 +439,16 @@ export default {
           this.listLoading = false
         })
       }
+    }, getPromoters() {
+      findNames()
+        .then(response => {
+          this.employeeDic = response.data.data
+        })
+        .catch(() => {
+          this.list = []
+          this.total = 0
+          this.listLoading = false
+        })
     },
     getCouriers() {
       fetchList().then(response => {

@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.linlinjava.litemall.admin.util.AdminResponseCode.*;
@@ -143,8 +144,14 @@ public class AdminAdminController {
     @GetMapping("nameList")
     public Object nameList(){
         List<String> result = adminService.findNames();
-        result.add(0, "无推荐人");
-        return  ResponseUtil.ok(result);
+        HashMap<Integer, String> hashMap = new HashMap<>();
+        hashMap.put(0, "无推荐人");
+        for (int i = 0; i < result.size(); i++) {
+            if(i >= 5){
+                hashMap.put(i+1, result.get(i));
+            }
+        }
+        return  ResponseUtil.ok(hashMap);
     }
 
 }

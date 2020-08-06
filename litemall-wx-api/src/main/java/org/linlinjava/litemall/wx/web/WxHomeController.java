@@ -76,11 +76,19 @@ public class WxHomeController {
      * @return 首页数据
      */
     @GetMapping("/index")
-    public Object index(@LoginUser Integer userId) {
+    public Object index(@LoginUser Integer userId, Integer cid) {
         //优先从缓存中读取
-        if (HomeCacheManager.hasData(HomeCacheManager.INDEX)) {
-            return ResponseUtil.ok(HomeCacheManager.getCacheData(HomeCacheManager.INDEX));
+        if (cid != null) {
+            if (HomeCacheManager.hasData(HomeCacheManager.INDEX+cid.toString())) {
+                return ResponseUtil.ok(HomeCacheManager.getCacheData(HomeCacheManager.INDEX));
+            }
+        }else {
+            if (HomeCacheManager.hasData(HomeCacheManager.INDEX)) {
+                return ResponseUtil.ok(HomeCacheManager.getCacheData(HomeCacheManager.INDEX));
+            }
         }
+
+
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
         Callable<List> bannerListCallable = () -> adService.queryIndex();
@@ -95,9 +103,9 @@ public class WxHomeController {
         }
 
 
-        Callable<List> newGoodsListCallable = () -> goodsService.queryByNew(0, SystemConfig.getNewLimit());
+        Callable<List> newGoodsListCallable = () -> goodsService.queryByNew(0, SystemConfig.getNewLimit(),cid);
 
-        Callable<List> hotGoodsListCallable = () -> goodsService.queryByHot(0, SystemConfig.getHotLimit());
+        Callable<List> hotGoodsListCallable = () -> goodsService.queryByHot(0, SystemConfig.getHotLimit(),cid);
 
         Callable<List> brandListCallable = () -> brandService.query(0, SystemConfig.getBrandLimit());
 
@@ -140,7 +148,13 @@ public class WxHomeController {
             entity.put("grouponList", grouponListTask.get());
             entity.put("floorGoodsList", floorGoodsListTask.get());
             //缓存数据
-            HomeCacheManager.loadData(HomeCacheManager.INDEX, entity);
+            if (cid != null) {
+                HomeCacheManager.loadData(HomeCacheManager.INDEX+cid.toString(), entity);
+
+            }else {
+                HomeCacheManager.loadData(HomeCacheManager.INDEX, entity);
+
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

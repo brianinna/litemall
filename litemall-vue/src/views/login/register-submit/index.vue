@@ -14,8 +14,8 @@
       </van-radio>
     </van-radio-group>
 
-    <md-field v-model="receiver" icon="username" placeholder="请输入收货人"></md-field>
-    <md-field v-model="tel" icon="mobile" placeholder="请输入手机号码" />
+    <md-field v-model="receiver" icon="username" placeholder="请输入商户名称"></md-field>
+    <md-field v-model="tel" icon="mobile" placeholder="请输入手机号码" type="number" />
     <md-field v-model="dragData.address" icon="dingwei1" />
     <md-field v-model="address" icon="dingwei1" placeholder="请输入详细地址" />
 

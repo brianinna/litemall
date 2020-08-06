@@ -52,13 +52,13 @@
 
       <el-table-column align="center" label="地址" prop="password">
         <template slot-scope="scope">
-          <span style=" white-space: pre-wrap;">{{ scope.row.id | addressFilter }}</span>
+          <span style=" white-space: pre-wrap;">{{ scope.row.birthday }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="推荐人" prop="password">
         <template slot-scope="scope">
-          <el-tag>{{ employeeDic[scope.row.password] }}</el-tag>
+          <el-tag>{{ scope.row.password }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="用户类型" prop="status">
@@ -79,6 +79,12 @@
             size="mini"
             @click="handleAddress(scope.row)"
           >地址修改</el-button>
+          <el-button
+            v-permission="['GET /admin/user/list']"
+            type="primary"
+            size="mini"
+            @click="handleCredit(scope.row)"
+          >增加余额</el-button>
           <el-button
             v-permission="['POST /admin/order/delete']"
             type="danger"
@@ -128,9 +134,9 @@
         label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
-        <el-form-item label="姓名" prop="name">
+        <!--  <el-form-item label="姓名" prop="name">
           <el-input v-model="addressForm.name" />
-        </el-form-item>
+        </el-form-item>-->
         <el-form-item label="手机号" prop="tel">
           <el-input v-model="addressForm.tel" />
         </el-form-item>
@@ -146,11 +152,35 @@
         <el-button type="primary" @click="updateAdrees()">确定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 增加余额 -->
+    <el-dialog :visible.sync="creditDialogVisible" title="增加余额">
+      <el-form
+        ref="creditForm"
+        :model="creditForm"
+        status-icon
+        label-position="left"
+        label-width="100px"
+        style="width: 400px; margin-left:50px;"
+      >
+        <el-form-item label="当前余额" prop="credit">
+          <el-input v-model="this.credit" />
+        </el-form-item>
+
+        <el-form-item label="金额" prop="money">
+          <el-input v-model="creditForm.money" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="creditDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateCredit()">确定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchList, listAddress, updateAddrees } from '@/api/user'
+import { fetchList, listAddress, updateAddrees, addCredit, getCredit } from '@/api/user'
 import { findNames } from '@/api/admin'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 let that
@@ -161,8 +191,12 @@ export default {
   filters: {
     addressFilter(id) {
       const list = that.address
-      const tmp = list[id - 1]
-      return '姓名：' + tmp.name + '\n手机号：' + tmp.tel + '\n详细地址：' + tmp.addressDetail + '\n备注: ' + tmp.postalCode
+      for (var i = 0; i < list.length; i++) {
+        var tmp = list[i]
+        if (tmp.userId === id) {
+          return '姓名：' + tmp.name + '\n手机号：' + tmp.tel + '\n详细地址：' + tmp.addressDetail + '\n备注: ' + tmp.postalCode
+        }
+      }
     }
   },
   data() {
@@ -177,22 +211,30 @@ export default {
         mobile: undefined,
         promoter: undefined,
         sort: 'id',
-        order: 'desc'
+        order: 'desc',
+        userId: undefined
       },
       downloadLoading: false,
       genderDic: ['未知', '男', '女'],
       levelDic: ['普通用户', 'VIP用户', '高级VIP用户'],
       statusDic: ['位置错误', '商户', '住户'],
-      employeeDic: [],
+      employeeDic: undefined,
       address: [],
       addressDialogVisible: false,
+      creditDialogVisible: false,
+
       addressForm: {
         id: undefined,
         name: undefined,
         tel: undefined,
         addressDetail: undefined,
         rem: undefined
-      }
+      },
+      creditForm: {
+        id: undefined,
+        money: undefined
+      },
+      credit: ''
     }
   }, beforeCreate() {
     that = this
@@ -225,11 +267,25 @@ export default {
         })
     },
     getList() {
+      this.getAddress()
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.list = response.data.data.list
         this.total = response.data.data.total
         this.listLoading = false
+        for (var i = 0; i < this.list.length; i++) {
+          var id = parseInt(this.list[i].password)
+          this.list[i].password = this.employeeDic[id]
+          // console.log(this.list[i].password)
+
+          for (var j = 0; j < this.address.length; j++) {
+            var tmp = this.address[j]
+            if (tmp.userId === this.list[i].id) {
+              console.log('匹配成功')
+              this.list[i].birthday = '姓名：' + tmp.name + '\n手机号：' + tmp.tel + '\n详细地址：' + tmp.addressDetail + '\n备注: ' + tmp.postalCode
+            }
+          }
+        }
       }).catch(() => {
         this.list = []
         this.total = 0
@@ -243,8 +299,8 @@ export default {
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['用户名', '手机号码', '性别', '生日', '状态']
-        const filterVal = ['username', 'mobile', 'gender', 'birthday', 'status']
+        const tHeader = ['用户名', '手机号码', '地址', '推荐人', '用户类型1商户2用户', '用户等级0普通1vip']
+        const filterVal = ['username', 'mobile', 'birthday', 'password', 'status', 'userLevel']
         excel.export_json_to_excel2(tHeader, this.list, filterVal, '用户信息')
         this.downloadLoading = false
       })
@@ -266,6 +322,33 @@ export default {
           message: '地址修改成功'
         })
         this.address[this.addressForm.id - 1] = this.addressForm
+      }).catch(response => {
+        console.log('respones fail', response)
+
+        this.$notify.error({
+          title: '失败',
+          message: response.data.errmsg
+        })
+      })
+    }, handleCredit(row) {
+      this.listQuery.id = row.id
+      getCredit(this.listQuery).then(response => {
+        this.credit = response.data.data
+      })
+      console.log('creditDialogVisible')
+      this.creditDialogVisible = true
+      this.creditForm.id = row.id
+      /*  this.$nextTick(() => {
+        this.$refs['addressForm'].clearValidate()
+      }) */
+    }, updateCredit() {
+      addCredit(this.creditForm).then(response => {
+        console.log('respones seccuss', response)
+        this.creditDialogVisible = false
+        this.$notify.success({
+          title: '成功',
+          message: '信用修改成功'
+        })
       }).catch(response => {
         console.log('respones fail', response)
 

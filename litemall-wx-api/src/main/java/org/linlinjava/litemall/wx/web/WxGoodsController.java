@@ -20,10 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -95,19 +92,16 @@ public class WxGoodsController {
         // 商品信息
         LitemallGoods info = goodsService.findById(id);
         LitemallUser userLook = userService.findById(userId);
-        if (userLook != null && id == 1181007) {//状元井价格
-            if (userLook.getStatus().equals(new Byte("1"))) {//商户
-                if (userLook.getUserLevel().equals(new Byte("0"))) {
-                    info.setRetailPrice(new BigDecimal("8.8"));
-                } else if (userLook.getUserLevel().equals(new Byte("1"))) {
-                    info.setRetailPrice(new BigDecimal("6.8"));
-                }
-            }
-            if (userLook.getStatus().equals(new Byte("2"))) {//用户
-                if (userLook.getUserLevel().equals(new Byte("0"))) {
-                    info.setRetailPrice(new BigDecimal("12.8"));
-                } else if (userLook.getUserLevel().equals(new Byte("1"))) {
-                    info.setRetailPrice(new BigDecimal("8.8"));
+
+        //根据用户类型显示信息
+        List<LitemallGoodsProduct> products = productService.queryByGid(id);
+        if (products.size() > 1) {
+            String value = userLook.getUserLevel() + userLook.getStatus().toString();
+            for (int i = 0; i < products.size(); i++) {
+                LitemallGoodsProduct tmp = products.get(i);
+                if ( Arrays.binarySearch(tmp.getSpecifications(),value) >= 0){
+                    info.setRetailPrice(tmp.getPrice());
+                    break;
                 }
             }
         }
@@ -116,7 +110,7 @@ public class WxGoodsController {
         Callable<List> goodsAttributeListCallable = () -> goodsAttributeService.queryByGid(id);
 
         // 商品规格 返回的是定制的GoodsSpecificationVo 多规格时根据用户属性返回对应规格
-        Callable<Object> objectCallable = () -> goodsSpecificationService.getSpecificationVoListCustomize(id,userLook.getUserLevel().toString(),userLook.getStatus().toString());
+        Callable<Object> objectCallable = () -> goodsSpecificationService.getSpecificationVoListCustomize(id,userLook.getUserLevel().toString(),userLook.getStatus().toString(),userLook.getCid());
         // 商品规格对应的数量和价格
         Callable<List> productListCallable = () -> productService.queryByGidCustomize(id,userLook.getUserLevel().toString(),userLook.getStatus().toString());
 

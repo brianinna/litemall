@@ -92,7 +92,8 @@ export default {
           avatar: this.userInfo.avatarUrl,
           nickName: this.userInfo.nickName,
           userLevel: this.userInfo.userLevel,
-          balance: this.userInfo.balance
+          balance: this.userInfo.balance,
+          cid: this.userInfo.cid
         });
 
         this.routerRedirect();

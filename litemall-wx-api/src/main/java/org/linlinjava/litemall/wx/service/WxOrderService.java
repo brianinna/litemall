@@ -269,7 +269,7 @@ public class WxOrderService {
         Integer grouponLinkId = JacksonUtil.parseInteger(body, "grouponLinkId");
 
         // 收货地址
-        LitemallAddress checkedAddress = addressService.query(userId, addressId);
+        LitemallAddress checkedAddress = addressService.findDefault(userId);
         if (checkedAddress == null) {
             return ResponseUtil.badArgument();
         }
@@ -400,9 +400,17 @@ public class WxOrderService {
         Integer orderId = null;
         LitemallOrder order = null;
 
-
+        //推荐人
         LitemallUser user = userService.findById(userId);
         Integer cid = user.getCid();
+        Integer promoterId =Integer.parseInt(user.getPassword());
+        String name;
+        if (promoterId == 0) {
+            name = "无推荐人";
+        }else {
+            name = litemallAdminService.findById(promoterId).getName();
+        }
+
         // 订单
         order = new LitemallOrder();
         order.setUserId(userId);
@@ -410,8 +418,8 @@ public class WxOrderService {
         order.setOrderStatus(OrderUtil.STATUS_CREATE);
         order.setConsignee(checkedAddress.getName());
         order.setMobile(checkedAddress.getTel());
-        order.setMessage(message);
-        String detailedAddress = checkedAddress.getProvince() + checkedAddress.getCity() + checkedAddress.getCounty() + " " + checkedAddress.getAddressDetail();
+        order.setMessage(name);
+        String detailedAddress =   checkedAddress.getAddressDetail() + checkedAddress.getPostalCode();
         order.setAddress(detailedAddress);
         order.setGoodsPrice(checkedGoodsPrice);
         order.setFreightPrice(freightPrice);
@@ -1234,6 +1242,13 @@ public class WxOrderService {
 
         LitemallUser user = userService.findById(userId);
         Integer cid = user.getCid();
+        Integer promoterId =Integer.parseInt(user.getPassword());
+        String name;
+        if (promoterId == 0) {
+            name = "无推荐人";
+        }else {
+            name = litemallAdminService.findById(promoterId).getName();
+        }
         // 订单
         order = new LitemallOrder();
         order.setUserId(userId);
@@ -1241,7 +1256,7 @@ public class WxOrderService {
         order.setOrderStatus(OrderUtil.STATUS_CREATE);
         order.setConsignee(checkedAddress.getName());
         order.setMobile(checkedAddress.getTel());
-        order.setMessage("");
+        order.setMessage(name);
         order.setAddress(checkedAddress.getAddressDetail());
         order.setGoodsPrice(orderTotalPrice);
         order.setFreightPrice(BigDecimal.ZERO);
@@ -1263,7 +1278,7 @@ public class WxOrderService {
         orderGoods.setGoodsSn("0");
         orderGoods.setProductId(0);
         orderGoods.setGoodsName("余额充值");
-        orderGoods.setPicUrl("cartGoods.getPicUrl()");
+        orderGoods.setPicUrl("https://mall.magicmirrortech.cn/wx/storage/fetch/credit.jpeg");
         orderGoods.setPrice(BigDecimal.ZERO);
         orderGoods.setNumber(new Short("0"));
         String[] spec = new String[1];

@@ -51,9 +51,10 @@ public class AdminOrderController {
                        @RequestParam(required = false) List<Short> orderStatusArray,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
+                       @RequestParam(defaultValue = "") String message,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminOrderService.list(userId, orderSn, start, end, orderStatusArray, page, limit, sort, order);
+        return adminOrderService.list(userId, orderSn, start, end, orderStatusArray,message, page, limit, sort, order);
     }
 
     /**

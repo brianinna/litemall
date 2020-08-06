@@ -2,7 +2,8 @@ package org.linlinjava.litemall.db.util;
 
 public class CouponConstant {
     public static final Short TYPE_COMMON = 0;
-    public static final Short TYPE_REGISTER = 1;
+    public static final Short TYPE_REGISTER_MERCHANT = 11;
+    public static final Short TYPE_REGISTER_HOME = 12;
     public static final Short TYPE_CODE = 2;
 
     public static final Short GOODS_TYPE_ALL = 0;

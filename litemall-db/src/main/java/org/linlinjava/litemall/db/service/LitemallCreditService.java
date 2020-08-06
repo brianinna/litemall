@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class LitemallCreditService {
 
         PageHelper.startPage(1, 1);
          List<LitemallCredit> credits = creditMapper.selectByExample(example);
-        if (credits == null) {
+        if (credits == null || credits.size() == 0) {
             return 0L;
         }else {
             return credits.get(0).getBalance();
@@ -64,6 +65,34 @@ public class LitemallCreditService {
         credit.setBalance( balance + (credit.getDc() * credit.getAmount()));
 
          return  creditMapper.insertSelective(credit);
+
+    }
+
+    public int add(Integer userId, String amount, String content, Integer dc) {
+        try {
+            BigDecimal bigDecimal = new BigDecimal(amount);
+            Long balance = queryBalance(userId);
+
+
+            LitemallCredit credit = new LitemallCredit();
+            credit.setUserId(userId);
+            credit.setContent(content);
+            credit.setDc(dc);
+            credit.setAmount((bigDecimal.multiply(new BigDecimal("100"))).longValue());
+
+            credit.setCreateTime(LocalDateTime.now());
+            credit.setUpdateTime(LocalDateTime.now());
+
+
+
+            credit.setBalance( balance + (credit.getDc() * credit.getAmount()));
+
+            return  creditMapper.insertSelective(credit);
+        }catch (NumberFormatException e){
+            return -1;
+        }
+
+
 
     }
 

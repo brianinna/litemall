@@ -84,7 +84,7 @@ public class LitemallGoodsSpecificationService {
         return specificationVoList;
     }
 
-    public Object getSpecificationVoListCustomize(Integer id,String userLevel,String status){
+    public Object getSpecificationVoListCustomize(Integer id,String userLevel,String status, Integer cid){
         List<LitemallGoodsSpecification> goodsSpecificationListOriginal = queryByGid(id);
         List<LitemallGoodsSpecification> goodsSpecificationList = new ArrayList<>();
         if (goodsSpecificationListOriginal.size() > 1) {

@@ -45,7 +45,7 @@ export default {
     getBalanceInfo() {
       authInfo().then(res => {
         this.userLevel = res.data.data.userLevel;
-        this.balance = res.data.data.balance;
+        this.balance = res.data.data.balance || 0.00;
       })
     },
     getUserInfo() {

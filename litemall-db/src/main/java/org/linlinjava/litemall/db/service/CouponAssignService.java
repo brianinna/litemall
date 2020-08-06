@@ -1,5 +1,7 @@
 package org.linlinjava.litemall.db.service;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.linlinjava.litemall.db.domain.LitemallCoupon;
 import org.linlinjava.litemall.db.domain.LitemallCouponUser;
 import org.linlinjava.litemall.db.util.CouponConstant;
@@ -12,6 +14,8 @@ import java.util.List;
 
 @Service
 public class CouponAssignService {
+    private final Log logger = LogFactory.getLog(CouponAssignService.class);
+
 
     @Autowired
     private LitemallCouponUserService couponUserService;
@@ -24,8 +28,16 @@ public class CouponAssignService {
      * @param userId
      * @return
      */
-    public void assignForRegister(Integer userId) {
-        List<LitemallCoupon> couponList = couponService.queryRegister();
+    public void assignForRegister(Integer userId, String userType,Integer cid) {
+        logger.info("开始优惠卷");
+        System.out.println("开始优惠卷"+" 1" + userType);
+
+        logger.info("用户type is");
+        logger.info(userType);
+        logger.info("1" + userType);
+
+        List<LitemallCoupon> couponList = couponService.queryRegister("1" + userType,cid);
+        System.out.println("copiuns list size "+ couponList.size());
         for(LitemallCoupon coupon : couponList){
             Integer couponId = coupon.getId();
 

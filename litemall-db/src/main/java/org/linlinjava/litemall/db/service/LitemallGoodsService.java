@@ -27,9 +27,9 @@ public class LitemallGoodsService {
      * @param limit
      * @return
      */
-    public List<LitemallGoods> queryByHot(int offset, int limit) {
+    public List<LitemallGoods> queryByHot(int offset, int limit,Integer cid) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andIsHotEqualTo(true).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andIsHotEqualTo(true).andIsOnSaleEqualTo(true).andCidEqualTo(cid).andDeletedEqualTo(false);
         example.setOrderByClause("add_time desc");
         PageHelper.startPage(offset, limit);
 
@@ -43,9 +43,9 @@ public class LitemallGoodsService {
      * @param limit
      * @return
      */
-    public List<LitemallGoods> queryByNew(int offset, int limit) {
+    public List<LitemallGoods> queryByNew(int offset, int limit,Integer cid) {
         LitemallGoodsExample example = new LitemallGoodsExample();
-        example.or().andIsNewEqualTo(true).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
+        example.or().andIsNewEqualTo(true).andCidEqualTo(cid).andIsOnSaleEqualTo(true).andDeletedEqualTo(false);
         example.setOrderByClause("add_time desc");
         PageHelper.startPage(offset, limit);
 

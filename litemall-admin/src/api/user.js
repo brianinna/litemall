@@ -22,6 +22,23 @@ export function updateAddrees(data) {
     data
   })
 }
+
+export function addCredit(data) {
+  return request({
+    url: '/user/addCredit',
+    method: 'post',
+    data
+  })
+}
+
+export function getCredit(query) {
+  return request({
+    url: '/user/credit',
+    method: 'get',
+    params: query
+  })
+}
+
 export function listCollect(query) {
   return request({
     url: '/collect/list',

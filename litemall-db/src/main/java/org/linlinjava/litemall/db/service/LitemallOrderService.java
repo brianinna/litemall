@@ -6,6 +6,7 @@ import org.linlinjava.litemall.db.dao.OrderMapper;
 import org.linlinjava.litemall.db.domain.LitemallOrder;
 import org.linlinjava.litemall.db.domain.LitemallOrderExample;
 import org.linlinjava.litemall.db.util.OrderUtil;
+import org.linlinjava.litemall.db.vo.LitemallOrderVO;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -92,7 +93,7 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectByExample(example);
     }
 
-    public List<LitemallOrder> querySelective(Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallOrderVO> querySelective(Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray, String message, Integer page, Integer limit, String sort, String order) {
         LitemallOrderExample example = new LitemallOrderExample();
         LitemallOrderExample.Criteria criteria = example.createCriteria();
 
@@ -111,14 +112,17 @@ public class LitemallOrderService {
         if (orderStatusArray != null && orderStatusArray.size() != 0) {
             criteria.andOrderStatusIn(orderStatusArray);
         }
+        if (!StringUtils.isEmpty(message) ) {
+            criteria.andMessageEqualTo(message);
+        }
         criteria.andDeletedEqualTo(false);
 
-        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
-            example.setOrderByClause(sort + " " + order);
-        }
+//        if (!StringUtils.isEmpty(sort) && !StringUtils.isEmpty(order)) {
+//            example.setOrderByClause(sort + " " + order);
+//        }
 
         PageHelper.startPage(page, limit);
-        return litemallOrderMapper.selectByExample(example);
+        return litemallOrderMapper.selectVOByExample(example);
     }
 
     public int updateWithOptimisticLocker(LitemallOrder order) {

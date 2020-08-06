@@ -14,6 +14,7 @@ import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.db.util.CouponUserConstant;
 import org.linlinjava.litemall.db.util.OrderUtil;
+import org.linlinjava.litemall.db.vo.LitemallOrderVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,9 +58,9 @@ public class AdminOrderService {
     @Autowired
     private LitemallGoodConfirmService goodConfirmService;
 
-    public Object list(Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray,
+    public Object list(Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray,String message,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallOrder> orderList = orderService.querySelective(userId, orderSn, start, end, orderStatusArray, page, limit,
+        List<LitemallOrderVO> orderList = orderService.querySelective(userId, orderSn, start, end, orderStatusArray,message, page, limit,
                 sort, order);
         return ResponseUtil.okList(orderList);
     }
@@ -240,7 +241,7 @@ public class AdminOrderService {
         map.put("orderId", order.getOrderSn());
         map.put("time", order.getPayTime().toString());
         map.put("openId", courier.getOpenId());
-        String notice = getForObject("http://127.0.0.1:8081/order/newMessage", map);
+        String notice = getForObject("http://127.0.0.1:8081/order/newDriverMessage", map);
         logger.info("发送消息结果");
 
         logger.info(notice);

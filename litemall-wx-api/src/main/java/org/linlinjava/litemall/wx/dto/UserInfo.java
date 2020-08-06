@@ -11,6 +11,16 @@ public class UserInfo {
     private Integer addressId;
     private Integer userLevel;
     private String balance;
+    private Integer cid;
+
+
+    public Integer getCid() {
+        return cid;
+    }
+
+    public void setCid(Integer cid) {
+        this.cid = cid;
+    }
 
     public Integer getUserLevel() {
         return userLevel;

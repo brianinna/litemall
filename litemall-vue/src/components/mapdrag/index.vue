@@ -158,7 +158,7 @@ export default {
 }
 .m-map .map {
   width: 100%;
-  height: 500px;
+  height: 250px;
 }
 .m-map .search {
   position: absolute;

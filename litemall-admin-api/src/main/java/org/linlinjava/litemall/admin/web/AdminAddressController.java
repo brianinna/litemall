@@ -37,10 +37,11 @@ public class AdminAddressController {
     @GetMapping("/list")
     public Object list(Integer userId, String name,
                        @RequestParam(defaultValue = "1") Integer page,
-                       @RequestParam(defaultValue = "10") Integer limit,
-                       @Sort @RequestParam(defaultValue = "add_time") String sort,
-                       @Order @RequestParam(defaultValue = "desc") String order) {
+                       @RequestParam(defaultValue = "10") Integer limit
+                      ) {
 
+        String sort = "id";
+       String  order = "desc";
         List<LitemallAddress> addressList = addressService.querySelective(userId, name, page, limit, sort, order);
         return ResponseUtil.okList(addressList);
     }

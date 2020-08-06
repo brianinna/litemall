@@ -110,6 +110,7 @@ public class WxAuthController {
         userInfo.setNickName(user.getNickname());
         userInfo.setAvatarUrl(user.getAvatar());
         userInfo.setUserLevel(user.getUserLevel().intValue());
+        userInfo.setCid(user.getCid());
         Long balance = creditService.queryBalance(user.getId());
         if ( balance > 0) {
             BigDecimal b = (BigDecimal.valueOf(balance)).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
@@ -172,7 +173,7 @@ public class WxAuthController {
             userService.add(user);
 
             // 新用户发送注册优惠券
-            couponAssignService.assignForRegister(user.getId());
+            couponAssignService.assignForRegister(user.getId(),user.getStatus().toString(),user.getCid());
         } else {
             user.setLastLoginTime(LocalDateTime.now());
             user.setLastLoginIp(IpUtil.getIpAddr(request));
@@ -292,7 +293,8 @@ public class WxAuthController {
         }
 
         // 给新用户发送注册优惠券
-        couponAssignService.assignForRegister(user.getId());
+        logger.info("优惠卷");
+        couponAssignService.assignForRegister(user.getId(),user.getStatus().toString(),user.getCid());
 
         // userInfo
         UserInfo userInfo = new UserInfo();
@@ -307,17 +309,16 @@ public class WxAuthController {
         result.put("token", tokenVue);
         result.put("userInfo", userInfo);
 
+        logger.info("开始更新地址");
+        LitemallAddress address1 = addressService.findDefault(user.getId());
+        logger.info(address1);
 
-        LitemallAddress address1 = new LitemallAddress();
         address1.setName(addressName);
         address1.setUserId(user.getId());
         address1.setAddressDetail(address);
         address1.setTel(tel);
-        address1.setIsDefault(Boolean.TRUE);
-        address1.setDeleted(false);
         address1.setProvince("河南省");
         address1.setCity("郑州市");
-        address1.setIsDefault(true);
         int begin = address.indexOf("市") + 1;
         int end = address.indexOf("区") + 1;
         if (begin != 0 && end != 0) {
@@ -327,7 +328,7 @@ public class WxAuthController {
         }
         address1.setPostalCode(rem);
         address1.setAreaCode(lat + "," + lng);
-        addressService.add(address1);
+        addressService.update(address1);
 
         return ResponseUtil.ok(result);
     }
