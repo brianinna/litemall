@@ -12,6 +12,7 @@ import org.linlinjava.litemall.db.domain.LitemallCredit;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.service.LitemallCreditService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.db.vo.LitemallUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class AdminUserController {
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallUser> userList = userService.querySelective(username, mobile, promoter,page, limit, sort, order);
+        List<LitemallUserVO> userList = userService.querySelective(username, mobile, promoter,page, limit, sort, order);
         return ResponseUtil.okList(userList);
     }
 

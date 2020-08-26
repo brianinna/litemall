@@ -5,6 +5,7 @@ import org.linlinjava.litemall.db.dao.LitemallUserMapper;
 import org.linlinjava.litemall.db.domain.LitemallUser;
 import org.linlinjava.litemall.db.domain.LitemallUserExample;
 import org.linlinjava.litemall.db.domain.UserVo;
+import org.linlinjava.litemall.db.vo.LitemallUserVO;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -46,7 +47,7 @@ public class LitemallUserService {
         return userMapper.updateByPrimaryKeySelective(user);
     }
 
-    public List<LitemallUser> querySelective(String username, String mobile, String promoter, Integer page, Integer size, String sort, String order) {
+    public List<LitemallUserVO> querySelective(String username, String mobile, String promoter, Integer page, Integer size, String sort, String order) {
         LitemallUserExample example = new LitemallUserExample();
         LitemallUserExample.Criteria criteria = example.createCriteria();
 
@@ -66,7 +67,7 @@ public class LitemallUserService {
         }
 
         PageHelper.startPage(page, size);
-        return userMapper.selectByExample(example);
+        return userMapper.selectVOByExample(example);
     }
 
     public int count() {

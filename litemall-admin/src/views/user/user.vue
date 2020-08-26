@@ -52,7 +52,10 @@
 
       <el-table-column align="center" label="地址" prop="password">
         <template slot-scope="scope">
-          <span style=" white-space: pre-wrap;">{{ scope.row.birthday }}</span>
+          <span
+            style=" white-space: pre-wrap;"
+            @click="handleAddress(scope.row)"
+          >{{ scope.row.address |addressFilter }}</span>
         </template>
       </el-table-column>
 
@@ -61,6 +64,7 @@
           <el-tag>{{ scope.row.password }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column align="center" label="注册日期" prop="addTime" />
       <el-table-column align="center" label="用户类型" prop="status">
         <template slot-scope="scope">
           <el-tag>{{ statusDic[scope.row.status] }}</el-tag>
@@ -73,12 +77,17 @@
       </el-table-column>
       <el-table-column align="center" label="操作" width="250" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
+          <!-- el-button
             v-permission="['GET /admin/user/list']"
             type="primary"
             size="mini"
+          >地址修改</el-button>-->
+          <el-button
+            v-permission="['POST /admin/user/list']"
+            type="primary"
+            size="mini"
             @click="handleAddress(scope.row)"
-          >地址修改</el-button>
+          >定水记录</el-button>
           <el-button
             v-permission="['GET /admin/user/list']"
             type="primary"
@@ -91,13 +100,6 @@
             size="mini"
             @click="handleDelete(scope.row)"
           >删除</el-button>
-          <el-button
-            v-if="scope.row.orderStatus==201"
-            v-permission="['POST /admin/order/ship']"
-            type="primary"
-            size="mini"
-            @click="handleShip(scope.row)"
-          >定水记录</el-button>
           <el-button
             v-if="scope.row.orderStatus==301"
             v-permission="['POST /admin/order/list']"
@@ -180,23 +182,16 @@
 </template>
 
 <script>
-import { fetchList, listAddress, updateAddrees, addCredit, getCredit } from '@/api/user'
+import { fetchList, updateAddrees, addCredit, getCredit } from '@/api/user'
 import { findNames } from '@/api/admin'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-let that
 
 export default {
   name: 'User',
   components: { Pagination },
   filters: {
-    addressFilter(id) {
-      const list = that.address
-      for (var i = 0; i < list.length; i++) {
-        var tmp = list[i]
-        if (tmp.userId === id) {
-          return '姓名：' + tmp.name + '\n手机号：' + tmp.tel + '\n详细地址：' + tmp.addressDetail + '\n备注: ' + tmp.postalCode
-        }
-      }
+    addressFilter(address) {
+      return '姓名：' + address.name + '\n手机号：' + address.tel + '\n详细地址：' + address.addressDetail + '\n备注: ' + address.postalCode
     }
   },
   data() {
@@ -236,25 +231,12 @@ export default {
       },
       credit: ''
     }
-  }, beforeCreate() {
-    that = this
   },
   created() {
-    this.getAddress()
     this.getPromoters()
     this.getList()
   },
   methods: {
-    getAddress() {
-      listAddress(this.listQuery).then(response => {
-        console.log('address respsne', response)
-        this.address = response.data.data.list
-      }).catch(() => {
-        this.list = []
-        this.total = 0
-        this.listLoading = false
-      })
-    },
     getPromoters() {
       findNames()
         .then(response => {
@@ -267,7 +249,6 @@ export default {
         })
     },
     getList() {
-      this.getAddress()
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.list = response.data.data.list
@@ -277,14 +258,6 @@ export default {
           var id = parseInt(this.list[i].password)
           this.list[i].password = this.employeeDic[id]
           // console.log(this.list[i].password)
-
-          for (var j = 0; j < this.address.length; j++) {
-            var tmp = this.address[j]
-            if (tmp.userId === this.list[i].id) {
-              console.log('匹配成功')
-              this.list[i].birthday = '姓名：' + tmp.name + '\n手机号：' + tmp.tel + '\n详细地址：' + tmp.addressDetail + '\n备注: ' + tmp.postalCode
-            }
-          }
         }
       }).catch(() => {
         this.list = []
@@ -308,7 +281,7 @@ export default {
     handleAddress(row) {
       console.log('handleaddres')
       this.addressDialogVisible = true
-      this.addressForm = this.address[row.id - 1]
+      this.addressForm = row.address
       console.log('addresform', this.addressForm)
       this.$nextTick(() => {
         this.$refs['addressForm'].clearValidate()
