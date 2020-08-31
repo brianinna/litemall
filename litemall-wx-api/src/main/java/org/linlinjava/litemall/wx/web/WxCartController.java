@@ -47,7 +47,8 @@ public class WxCartController {
     private CouponVerifyService couponVerifyService;
     @Autowired
     private LitemallUserService userService;
-
+    @Autowired
+    private LitemallCreditService creditService;
     /**
      * 用户购物车信息
      *

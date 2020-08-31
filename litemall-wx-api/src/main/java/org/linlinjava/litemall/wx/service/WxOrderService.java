@@ -388,7 +388,7 @@ public class WxOrderService {
                 if (orderTotalPrice.compareTo(balanceBigD) < 1) {
                     integralPrice = orderTotalPrice;
                 }else {
-                    integralPrice = orderTotalPrice.subtract(balanceBigD);
+                    integralPrice = balanceBigD;
                 }
             }
 
@@ -663,24 +663,39 @@ public class WxOrderService {
             if (fee == 0) {
                 order.setPayId("");
                 order.setPayTime(LocalDateTime.now());
-                order.setOrderStatus(OrderUtil.STATUS_PAY);
+                order.setOrderStatus(OrderUtil.STATUS_SHIP);
+                order.setShipSn("2");
+                order.setShipChannel("王保伟");
+                order.setShipTime(LocalDateTime.now());
                 if (orderService.updateWithOptimisticLocker(order) == 0) {
                     return WxPayNotifyResponse.fail("更新数据已失效");
                 }
                 taskService.removeTask(new OrderUnpaidTask(order.getId()));
-                logger.info("发送客服信息调度");
-                LitemallAdmin customerService = litemallAdminService.findAdmin("anfeng").get(0);
+//                logger.info("发送客服信息调度");
+//                LitemallAdmin customerService = litemallAdminService.findAdmin("anfeng").get(0);
+//
+//
+//                Map<String, String> map = new HashMap();
+//                map.put("orderId", order.getOrderSn());
+//                map.put("time", order.getPayTime().toString());
+//                map.put("openId", customerService.getOpenId());
+//
+//                String notice = getForObject("http://127.0.0.1:8081/order/newMessage", map);
+//                logger.info("发送消息结果");
+//
+//                logger.info(notice);
 
+                logger.info("发送给默认送水工");
 
+                LitemallAdmin customerService = litemallAdminService.findAdmin(2);
                 Map<String, String> map = new HashMap();
                 map.put("orderId", order.getOrderSn());
                 map.put("time", order.getPayTime().toString());
                 map.put("openId", customerService.getOpenId());
 
-                String notice = getForObject("http://127.0.0.1:8081/order/newMessage", map);
-                logger.info("发送消息结果");
+                String notice = getForObject("http://127.0.0.1:8071/order/newDriverMessage", map);
 
-                logger.info(notice);
+                logger.info("发送消息结果");
 
                 Map<String, Object> data = new HashMap<>();
                 data.put("errno", 200);
@@ -830,7 +845,7 @@ public class WxOrderService {
 
         order.setPayId(payId);
         order.setPayTime(LocalDateTime.now());
-        order.setOrderStatus(OrderUtil.STATUS_PAY);
+        order.setOrderStatus(OrderUtil.STATUS_SHIP);
 
 
         //支付成功：判断是否是vip商品，更改会员等级完成订单
@@ -839,23 +854,26 @@ public class WxOrderService {
         for (int i = 0; i < list.size(); i++) {
             LitemallOrderGoods orderGoods = list.get(i);
             logger.info(orderGoods);
-            if (orderGoods.getGoodsSn().equals("1001002")) {//
-                logger.info("`````是VIP");
-                LitemallUser user = userService.findById(order.getUserId());
-                user.setUserLevel(new Byte("1"));
-                userService.updateById(user);
-                taskService.removeTask(new OrderUnpaidTask(order.getId()));
-                order.setOrderStatus(OrderUtil.STATUS_CONFIRM);
-                orderService.updateWithOptimisticLocker(order);
-                logger.info("订单更改成功");
-
-                return WxPayNotifyResponse.success("处理成功!");
-            }
+//            if (orderGoods.getGoodsSn().equals("1001002")) {//
+//                logger.info("`````是VIP");
+//                LitemallUser user = userService.findById(order.getUserId());
+//                user.setUserLevel(new Byte("1"));
+//                userService.updateById(user);
+//                taskService.removeTask(new OrderUnpaidTask(order.getId()));
+//                order.setOrderStatus(OrderUtil.STATUS_CONFIRM);
+//                orderService.updateWithOptimisticLocker(order);
+//                logger.info("订单更改成功");
+//
+//                return WxPayNotifyResponse.success("处理成功!");
+//            }
             //会员充值
             if (orderGoods.getGoodsSn().equals("0")) {//
                 logger.info("`````是余额充值");
                 LitemallUser user = userService.findById(order.getUserId());
-                if(result.getTotalFee() >= 20000 && !user.getUserLevel().equals(new Byte("1"))){
+                if(result.getTotalFee() >= 20000 && !user.getUserLevel().equals(new Byte("2"))){
+                    user.setUserLevel(new Byte("2"));
+                    userService.updateById(user);
+                }else if(result.getTotalFee() >= 10000 && result.getTotalFee() < 20000 && !user.getUserLevel().equals(new Byte("1"))){
                     user.setUserLevel(new Byte("1"));
                     userService.updateById(user);
                 }
@@ -876,22 +894,42 @@ public class WxOrderService {
                 return WxPayNotifyResponse.success("处理成功!");
             }
         }
+
+        order.setShipSn("2");
+        order.setShipChannel("王保伟");
+        order.setShipTime(LocalDateTime.now());
         if (orderService.updateWithOptimisticLocker(order) == 0) {
             return WxPayNotifyResponse.fail("更新数据已失效");
         }
 
-        LitemallAdmin customerService = litemallAdminService.findAdmin("anfeng").get(0);
+        LitemallAdmin customerService = litemallAdminService.findAdmin("wangbaowei").get(0);
         Map<String, String> map = new HashMap();
         map.put("orderId", order.getOrderSn());
         map.put("time", order.getPayTime().toString());
         map.put("openId", customerService.getOpenId());
 
-        String notice = getForObject("http://127.0.0.1:8081/order/newMessage", map);
+        String notice = getForObject("http://127.0.0.1:8071/order/newDriverMessage", map);
 
         logger.info("发送消息结果");
 
         logger.info(notice);
 
+        //支付成功 如果使用了余额更新余额
+        if(order.getIntegralPrice().compareTo(BigDecimal.ZERO ) > 0){
+            Long balance = creditService.queryBalance(order.getUserId());
+            BigDecimal balanceBigD = BigDecimal.valueOf(balance);
+            balanceBigD = balanceBigD.divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);
+
+                //更新余额
+                LitemallCredit credit = new LitemallCredit();
+                credit.setUserId(order.getUserId());
+                credit.setAmount((order.getIntegralPrice().multiply(new BigDecimal("100"))).longValue());
+                credit.setDc(-1);
+                credit.setContent("订单消费："+order.getOrderSn());
+                credit.setCreateTime(LocalDateTime.now());
+                credit.setUpdateTime(LocalDateTime.now());
+                creditService.add(credit);
+        }
 
         //  支付成功，有团购信息，更新团购信息
         LitemallGroupon groupon = grouponService.queryByOrderId(order.getId());
@@ -1278,7 +1316,7 @@ public class WxOrderService {
         orderGoods.setGoodsSn("0");
         orderGoods.setProductId(0);
         orderGoods.setGoodsName("余额充值");
-        orderGoods.setPicUrl("https://mall.magicmirrortech.cn/wx/storage/fetch/credit.jpeg");
+        orderGoods.setPicUrl("https://malldq.magicmirrortech.cn/wx/storage/fetch/credit.jpeg");
         orderGoods.setPrice(BigDecimal.ZERO);
         orderGoods.setNumber(new Short("0"));
         String[] spec = new String[1];

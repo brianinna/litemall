@@ -80,7 +80,7 @@ public class WxOrderController {
         return wxOrderService.cancel(userId, body);
     }
 
-    /**
+    /**S
      * 付款订单的预支付会话标识
      *
      * @param userId 用户ID

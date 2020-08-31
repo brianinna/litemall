@@ -1,0 +1,11 @@
+litemall:
+  # 开发者应该设置成自己的wx相关信息
+  wx:
+    app-id: wx66ebefa3a5800e87
+    app-secret: 00ff97afe084b3a54ae246e3e4349d6f
+    mch-id: 1601376425
+    mch-key: anxinquanshui135694anxinquanshui
+    notify-url: https://brianmall.utools.club/wx/order/pay-notify
+    # 商户证书文件路径
+    # 请参考“商户证书”一节 https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=4_3
+    key-path: /Users/yazhejing/Documents/bj/cert/1601376425_20200729_cert/apiclient_cert.p12

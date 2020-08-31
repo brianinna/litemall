@@ -63,6 +63,9 @@
       <van-cell title="优惠券">
         <span class="red">-{{ couponPrice * 100| yuan}}</span>
       </van-cell>
+      <van-cell title="可用余额">
+        <span class="red">{{ balance * 100| yuan}}</span>
+      </van-cell>
       <van-field v-model="message" placeholder="请输入备注" label="订单备注">
         <template slot="icon">{{message.length}}/50</template>
       </van-field>
@@ -98,7 +101,7 @@ export default {
       orderTotalPrice: 0, //订单总价
       actualPrice: 0, //实际需要支付的总价
       message: '',
-
+      balance: undefined,
       isDisabled: false,
       showList: false,
       chosenCoupon: -1,
@@ -192,8 +195,8 @@ export default {
       })
     },
     init() {
-      const { AddressId, CartId, CouponId, UserCouponId } = getLocalStorage('AddressId', 'CartId', 'CouponId', 'UserCouponId');
-
+      const { AddressId, CartId, CouponId, UserCouponId, balance } = getLocalStorage('AddressId', 'CartId', 'CouponId', 'UserCouponId', 'balance');
+      this.balance = balance
       cartCheckout({ cartId: CartId, addressId: AddressId, couponId: CouponId, userCouponId: UserCouponId, grouponRulesId: 0 }).then(res => {
         var data = res.data.data
 

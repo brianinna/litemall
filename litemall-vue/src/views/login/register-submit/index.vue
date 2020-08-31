@@ -46,10 +46,10 @@ export default {
   data() {
     return {
       radio: '1',
-      activeIcon: 'https://wechat.magicmirrortech.cn/public/images/company-ac.png',
-      inactiveIcon: 'https://wechat.magicmirrortech.cn/public/images/company.png',
-      homeActiveIcon: 'https://wechat.magicmirrortech.cn/public/images/home-ac.png',
-      homeInactiveIcon: 'https://wechat.magicmirrortech.cn/public/images/home.png',
+      activeIcon: 'https://wechatdq.magicmirrortech.cn/public/images/company-ac.png',
+      inactiveIcon: 'https://wechatdq.magicmirrortech.cn/public/images/company.png',
+      homeActiveIcon: 'https://wechatdq.magicmirrortech.cn/public/images/home-ac.png',
+      homeInactiveIcon: 'https://wechatdq.magicmirrortech.cn/public/images/home.png',
       counting: true,
       code: '',
       tel: '',
@@ -62,7 +62,8 @@ export default {
         nearestJunction: null,
         nearestRoad: null,
         nearestPOI: null
-      }    };
+      }
+    };
   },
   mounted: function () {
   },

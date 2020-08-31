@@ -14,11 +14,9 @@ import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.util.bcrypt.BCryptPasswordEncoder;
 import org.linlinjava.litemall.db.domain.LitemallAddress;
 import org.linlinjava.litemall.db.domain.LitemallCredit;
+import org.linlinjava.litemall.db.domain.LitemallGoodConfirm;
 import org.linlinjava.litemall.db.domain.LitemallUser;
-import org.linlinjava.litemall.db.service.CouponAssignService;
-import org.linlinjava.litemall.db.service.LitemallAddressService;
-import org.linlinjava.litemall.db.service.LitemallCreditService;
-import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.db.service.*;
 import org.linlinjava.litemall.wx.annotation.LoginUser;
 import org.linlinjava.litemall.wx.dto.UserInfo;
 import org.linlinjava.litemall.wx.dto.UserToken;
@@ -67,6 +65,8 @@ public class WxAuthController {
     @Autowired
     private LitemallCreditService creditService;
 
+    @Autowired
+    private LitemallGoodConfirmService goodConfirmService;
 
     /**
      * 账号登录
@@ -556,6 +556,7 @@ public class WxAuthController {
             return ResponseUtil.unlogin();
         }
 
+        Integer bucket = goodConfirmService.totalBucket(userId);
         LitemallUser user = userService.findById(userId);
         Map<Object, Object> data = new HashMap<Object, Object>();
         data.put("nickName", user.getNickname());
@@ -563,6 +564,7 @@ public class WxAuthController {
         data.put("gender", user.getGender());
         data.put("mobile", user.getMobile());
         data.put("userLevel", user.getUserLevel());
+        data.put("bucket", bucket);
         Long balance = creditService.queryBalance(userId);
         if (balance> 0) {
             BigDecimal b = (BigDecimal.valueOf(balance)).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_UP);

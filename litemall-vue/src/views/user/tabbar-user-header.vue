@@ -5,14 +5,14 @@
       <img :src="avatar" alt="头像" width="55" height="55" />
     </div>
     <div>{{nickName}}</div>
-    <div>{{ levelDic[userLevel] }} | 余额：{{balance}} 元</div>
+    <div>{{ levelDic[userLevel] }} | 余额：{{balance}} 元 | 水桶：{{bucket}} 个</div>
   </div>
 </template>
 
 <script>
 import avatar_default from '@/assets/images/avatar_default.png';
 import bg_default from '@/assets/images/user_head_bg.png';
-import { getLocalStorage } from '@/utils/local-storage';
+import { getLocalStorage, setLocalStorage } from '@/utils/local-storage';
 import { authInfo } from '@/api/api';
 
 export default {
@@ -32,7 +32,8 @@ export default {
       background_image: bg_default,
       levelDic: ['普通用户', 'VIP用户', '高级VIP用户'],
       userLevel: 0,
-      balance: '0.00'
+      balance: '0.00',
+      bucket: 0
     };
   },
 
@@ -46,6 +47,9 @@ export default {
       authInfo().then(res => {
         this.userLevel = res.data.data.userLevel;
         this.balance = res.data.data.balance || 0.00;
+        this.bucket = res.data.data.bucket || 0;
+        setLocalStorage({ balance: this.balance });
+
       })
     },
     getUserInfo() {

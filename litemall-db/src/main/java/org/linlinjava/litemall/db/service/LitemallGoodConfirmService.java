@@ -31,4 +31,13 @@ public class LitemallGoodConfirmService {
         PageHelper.startPage(page, limit);
         return goodConfirmMapper.selectByExample(example);
     }
+
+    public Integer totalBucket(Integer userId){
+        List<LitemallGoodConfirm> result = querySelective(userId, 1, 1, "id","desc");
+        if (result == null || result.size() == 0) {
+            return 0;
+        } else {
+            return result.get(0).getOrderGoodNum();
+        }
+    }
 }

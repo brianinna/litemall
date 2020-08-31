@@ -4,7 +4,7 @@
       <div class="store_avatar">
         <img src="../../assets/images/avatar_default.png" alt="头像" width="55" height="55" />
       </div>
-      <div class="store_name">安心泉水</div>
+      <div class="store_name">百氏饮水</div>
     </div>
 
     <md-field-group>
@@ -73,7 +73,8 @@ export default {
     };
   },
   mounted: function () {
-    this.login();  },
+    this.login();
+  },
   methods: {
     clearText() {
       this.account = '';

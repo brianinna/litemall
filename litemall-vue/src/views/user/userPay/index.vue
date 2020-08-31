@@ -3,9 +3,11 @@
     <div>充值金额(元)</div>
     <div style="	padding-top: 20px;">
       一键充值
-      <van-button size="large" type="info" @click="onVip">充值200元，送18元VIP桶桶享会员价</van-button>
+      <van-button size="large" type="info" @click="onVip(100)">充值100元，送VIP1桶桶优惠2元</van-button>
     </div>
-
+    <div style="	padding-top: 20px;">
+      <van-button size="large" type="info" @click="onVip(200)">充值200元，送VIP2桶桶优惠4元</van-button>
+    </div>
     <div style="	padding-top: 50px;">
       自定义金额
       <md-field data-vv-as="自定义金额" v-model="money" placeholder="请输入充值金额" />
@@ -28,7 +30,7 @@ export default {
 
   data() {
     return {
-      money: 0
+      money: undefined
     };
   },
   created() {
@@ -61,11 +63,11 @@ export default {
         this.$toast("下单失败");
       })
 
-    }, onVip() {
+    }, onVip(vip) {
 
 
       orderSubmit({
-        cartId: 200,
+        cartId: vip,
         message: '会员充值'
       }).then(res => {
 
