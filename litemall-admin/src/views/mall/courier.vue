@@ -45,7 +45,7 @@
     >
       <el-table-column align="center" width="100px" label="用户ID" prop="id" sortable />
 
-      <el-table-column align="center" label="用户名" prop="username" />
+      <el-table-column align="center" label="用户名" prop="name" />
 
       <el-table-column align="center" label="手机号码" prop="phone" />
 
@@ -75,7 +75,7 @@
         style="width: 400px; margin-left:50px;"
       >
         <el-form-item label="配送员名称">
-          <el-input v-model="dataForm.username" />
+          <el-input v-model="dataForm.name" />
         </el-form-item>
         <el-form-item label="配送员手机号">
           <el-input v-model="dataForm.phone" auto-complete="off" />

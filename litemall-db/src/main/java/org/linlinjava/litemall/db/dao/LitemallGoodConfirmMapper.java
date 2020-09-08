@@ -125,4 +125,7 @@ public interface LitemallGoodConfirmMapper {
      * @mbg.generated
      */
     int updateByPrimaryKey(LitemallGoodConfirm record);
+
+    int goodsTotal(LitemallGoodConfirmExample example);
+
 }

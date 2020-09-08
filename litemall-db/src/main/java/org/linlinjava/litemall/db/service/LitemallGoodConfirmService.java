@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -39,5 +41,22 @@ public class LitemallGoodConfirmService {
         } else {
             return result.get(0).getOrderGoodNum();
         }
+    }
+
+    public int goodsTotal(Integer cid, LocalDateTime start, LocalDateTime end) {
+        if (start == null) {
+            LocalDateTime today_start = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+            start = today_start;
+        }
+
+        if (end == null) {
+            LocalDateTime today_start = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+            end = today_start;
+
+        }
+        LitemallGoodConfirmExample example = new LitemallGoodConfirmExample();
+             example.or().andAddTimeBetween(start, end);
+
+        return (int) goodConfirmMapper.goodsTotal(example);
     }
 }

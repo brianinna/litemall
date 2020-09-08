@@ -150,5 +150,5 @@ public interface LitemallAdminMapper {
      */
     int logicalDeleteByPrimaryKey(Integer id);
 
-    List<String> findNames();
+    List<String> findNames(@Param("cid") Integer cid);
 }

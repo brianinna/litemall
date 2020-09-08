@@ -36,8 +36,8 @@ public class AdminPromoterController {
     @Autowired
     private LogHelper logHelper;
 
-    @RequiresPermissions("admin:admin:list")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
+    @RequiresPermissions("admin:promoter:list")
+    @RequiresPermissionsDesc(menu = {"系统管理", "推广员管理"}, button = "查询")
     @GetMapping("/list")
     public Object list(String username,
                        @RequestParam(name = "cid", required = false)Integer cid,
@@ -71,8 +71,8 @@ public class AdminPromoterController {
         return null;
     }
 
-    @RequiresPermissions("admin:admin:create")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "添加")
+    @RequiresPermissions("admin:promoter:create")
+    @RequiresPermissionsDesc(menu = {"系统管理", "推广员管理"}, button = "添加")
     @PostMapping("/create")
     public Object create(@RequestBody LitemallAdmin admin) {
         Object error = validate(admin);
@@ -95,16 +95,16 @@ public class AdminPromoterController {
         return ResponseUtil.ok(admin);
     }
 
-    @RequiresPermissions("admin:admin:read")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "详情")
+    @RequiresPermissions("admin:promoter:read")
+    @RequiresPermissionsDesc(menu = {"系统管理", "推广员管理"}, button = "详情")
     @GetMapping("/read")
     public Object read(@NotNull Integer id) {
         LitemallAdmin admin = adminService.findById(id);
         return ResponseUtil.ok(admin);
     }
 
-    @RequiresPermissions("admin:admin:update")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "编辑")
+    @RequiresPermissions("admin:promoter:update")
+    @RequiresPermissionsDesc(menu = {"系统管理", "推广员管理"}, button = "编辑")
     @PostMapping("/update")
     public Object update(@RequestBody LitemallAdmin admin) {
         Object error = validate(admin);
@@ -128,8 +128,8 @@ public class AdminPromoterController {
         return ResponseUtil.ok(admin);
     }
 
-    @RequiresPermissions("admin:admin:delete")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "删除")
+    @RequiresPermissions("admin:promoter:delete")
+    @RequiresPermissionsDesc(menu = {"系统管理", "推广员管理"}, button = "删除")
     @PostMapping("/delete")
     public Object delete(@RequestBody LitemallAdmin admin) {
         Integer anotherAdminId = admin.getId();

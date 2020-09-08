@@ -4,7 +4,7 @@
       <div class="store_avatar">
         <img src="../../assets/images/avatar_default.png" alt="头像" width="55" height="55" />
       </div>
-      <div class="store_name">百氏饮水</div>
+      <div class="store_name">安心水业</div>
     </div>
 
     <md-field-group>

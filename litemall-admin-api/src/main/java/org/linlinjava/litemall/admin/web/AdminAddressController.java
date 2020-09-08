@@ -46,8 +46,8 @@ public class AdminAddressController {
         return ResponseUtil.okList(addressList);
     }
 
-    @RequiresPermissions("admin:address:list")
-    @RequiresPermissionsDesc(menu = {"用户管理", "收货地址"}, button = "查询")
+    @RequiresPermissions("admin:address:update")
+    @RequiresPermissionsDesc(menu = {"用户管理", "收货地址"}, button = "编辑")
     @PostMapping("/update")
     public Object update(@RequestBody LitemallAddress address) {
 

@@ -46,7 +46,12 @@ public class AdminGoodsController {
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        return adminGoodsService.list(goodsId, goodsSn, name, page, limit, sort, order);
+        LitemallAdmin currentAdmin = (LitemallAdmin)    SecurityUtils.getSubject().getPrincipal();
+        Integer cid = 0;
+        if (currentAdmin != null) {
+            cid = currentAdmin.getCid();
+        }
+        return adminGoodsService.list(cid,goodsId, goodsSn, name, page, limit, sort, order);
     }
 
     @GetMapping("/catAndBrand")

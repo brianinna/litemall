@@ -98,7 +98,7 @@ export const asyncRoutes = [
         component: () => import('@/views/user/address'),
         name: 'address',
         meta: {
-          perms: ['GET /admin/address/list'],
+          perms: ['GET /admin/address/list', 'POST /admin/address/update'],
           title: '收货地址',
           noCache: true
         }

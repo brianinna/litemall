@@ -101,7 +101,7 @@ public class LitemallCouponService {
     public List<LitemallCoupon> queryRegister(String coupontype, Integer cid) {
         System.out.println("query canshu"+Short.parseShort(coupontype));
         LitemallCouponExample example = new LitemallCouponExample();
-        example.or().andTypeEqualTo(CouponConstant.TYPE_REGISTER_MERCHANT).andStatusEqualTo(CouponConstant.STATUS_NORMAL).andCidEqualTo(cid).andDeletedEqualTo(false);
+        example.or().andTypeEqualTo(Short.parseShort(coupontype)).andStatusEqualTo(CouponConstant.STATUS_NORMAL).andCidEqualTo(cid).andDeletedEqualTo(false);
         return couponMapper.selectByExample(example);
     }
 

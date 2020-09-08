@@ -212,12 +212,14 @@ public class AdminRoleController {
         if (permissionService.checkSuperPermission(roleId)) {
             return ResponseUtil.fail(AdminResponseCode.ROLE_SUPER_SUPERMISSION, "当前角色的超级权限不能变更");
         }
+        LitemallRole role = roleService.findById(roleId);
 
         // 先删除旧的权限，再更新新的权限
         permissionService.deleteByRoleId(roleId);
         for (String permission : permissions) {
             LitemallPermission litemallPermission = new LitemallPermission();
             litemallPermission.setRoleId(roleId);
+            litemallPermission.setCid(Integer.parseInt(role.getDesc()));
             litemallPermission.setPermission(permission);
             permissionService.add(litemallPermission);
         }

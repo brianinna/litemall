@@ -12,6 +12,17 @@ export function listOrder(query) {
   })
 }
 
+export function orderInfo(query) {
+  return request({
+    url: '/order/info',
+    method: 'get',
+    params: query,
+    paramsSerializer: function(params) {
+      return Qs.stringify(params, { arrayFormat: 'repeat' })
+    }
+  })
+}
+
 export function detailOrder(id) {
   return request({
     url: '/order/detail',

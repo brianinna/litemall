@@ -20,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -44,7 +45,9 @@ public class AdminAdminController {
                        @RequestParam(defaultValue = "10") Integer limit,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
-        List<LitemallAdmin> adminList = adminService.querySelective(username, page, limit, sort, order);
+        LitemallAdmin current = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
+
+        List<LitemallAdmin> adminList = adminService.querySelective(current.getCid(),username, page, limit, sort, order);
         return ResponseUtil.okList(adminList);
     }
 
@@ -67,6 +70,9 @@ public class AdminAdminController {
     @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "添加")
     @PostMapping("/create")
     public Object create(@RequestBody LitemallAdmin admin) {
+        LitemallAdmin current = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
+
+
         Object error = validate(admin);
         if (error != null) {
             return error;
@@ -78,6 +84,9 @@ public class AdminAdminController {
             return ResponseUtil.fail(ADMIN_NAME_EXIST, "管理员已经存在");
         }
 
+        if (admin.getCid() == null || admin.getCid() == 0) {
+            admin.setCid(current.getCid());
+        }
         String rawPassword = admin.getPassword();
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String encodedPassword = encoder.encode(rawPassword);
@@ -143,13 +152,18 @@ public class AdminAdminController {
 
     @GetMapping("nameList")
     public Object nameList(){
-        List<String> result = adminService.findNames();
+        LitemallAdmin current = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
+
+        List<Integer[]> roleList = new ArrayList<>();
+        roleList.add(new Integer[]{11});
+        roleList.add(new Integer[]{4,11});
+        List<LitemallAdmin> promoter = adminService.queryCourierSelective("", 1, 100,"id", "ASC", current.getCid(),roleList,"");
+
         HashMap<Integer, String> hashMap = new HashMap<>();
         hashMap.put(0, "无推荐人");
-        for (int i = 0; i < result.size(); i++) {
-            if(i >= 5){
-                hashMap.put(i+1, result.get(i));
-            }
+        for (int i = 0; i < promoter.size(); i++) {
+            LitemallAdmin promot = promoter.get(i);
+                hashMap.put(promot.getId(), promot.getName());
         }
         return  ResponseUtil.ok(hashMap);
     }

@@ -58,11 +58,29 @@ public class AdminOrderService {
     @Autowired
     private LitemallGoodConfirmService goodConfirmService;
 
-    public Object list(Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray,String message,
+    public Object list(Integer cid,Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray,String message,
                        Integer page, Integer limit, String sort, String order) {
-        List<LitemallOrderVO> orderList = orderService.querySelective(userId, orderSn, start, end, orderStatusArray,message, page, limit,
+        List<LitemallOrderVO> orderList = orderService.querySelective(cid,userId, orderSn, start, end, orderStatusArray,message, page, limit,
                 sort, order);
         return ResponseUtil.okList(orderList);
+    }
+
+    public Object info(Integer cid,Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray,String message,
+                       Integer page, Integer limit, String sort, String order) {
+
+
+        Map<String, Object> data = new HashMap<>();
+        int newUser = userService.countNewUser(cid,start,end);
+        int orderTotal = orderService.countOrder(cid,start,end,message);
+//        int returnTotal = orderService.returnTotal(cid, start, end);
+        int goodsTotal = goodConfirmService.goodsTotal(cid, start, end);
+
+        data.put("newUser", newUser);
+        data.put("orderTotal", orderTotal);
+        data.put("goodsTotal", goodsTotal);
+//        data.put("returnTotal", returnTotal);
+        return ResponseUtil.ok(data);
+
     }
 
     public Object detail(Integer id) {
@@ -164,7 +182,7 @@ public class AdminOrderService {
             for (LitemallOrderGoods orderGoods : orderGoodsList) {
                 Integer productId = orderGoods.getProductId();
                 Short number = orderGoods.getNumber();
-                if (productService.addStock(productId, number) == 0) {
+                if (number > 0 && productService.addStock(productId, number) == 0) {
                     throw new RuntimeException("商品货品库存增加失败");
                 }
             }
@@ -238,7 +256,7 @@ public class AdminOrderService {
         // todo 发送末班消息给客户以及配送员
 //        notifyService.notifySmsTemplate(order.getMobile(), NotifyType.SHIP, new String[]{shipChannel, shipSn});
         Map<String, String> map = new HashMap();
-        map.put("orderId", order.getOrderSn());
+        map.put("orderId", order.getId().toString());
         map.put("time", order.getPayTime().toString());
         map.put("openId", courier.getOpenId());
         String notice = getForObject("http://127.0.0.1:8081/order/newDriverMessage", map);

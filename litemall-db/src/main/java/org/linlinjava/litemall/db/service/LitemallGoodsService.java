@@ -88,10 +88,15 @@ public class LitemallGoodsService {
     }
 
 
-    public List<LitemallGoods> querySelective(Integer catId, Integer brandId, String keywords, Boolean isHot, Boolean isNew, Integer offset, Integer limit, String sort, String order) {
+    public List<LitemallGoods> querySelective(Integer cid, Integer catId, Integer brandId, String keywords, Boolean isHot, Boolean isNew, Integer offset, Integer limit, String sort, String order) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         LitemallGoodsExample.Criteria criteria1 = example.or();
         LitemallGoodsExample.Criteria criteria2 = example.or();
+
+        if (cid != null && cid > 0) {
+            criteria1.andCidEqualTo(cid);
+            criteria2.andCidEqualTo(cid);
+        }
 
         if (!StringUtils.isEmpty(catId) && catId != 0) {
             criteria1.andCategoryIdEqualTo(catId);
@@ -127,10 +132,12 @@ public class LitemallGoodsService {
         return goodsMapper.selectByExampleSelective(example, columns);
     }
 
-    public List<LitemallGoods> querySelective(Integer goodsId, String goodsSn, String name, Integer page, Integer size, String sort, String order) {
+    public List<LitemallGoods> querySelective(Integer cid,Integer goodsId, String goodsSn, String name, Integer page, Integer size, String sort, String order) {
         LitemallGoodsExample example = new LitemallGoodsExample();
         LitemallGoodsExample.Criteria criteria = example.createCriteria();
-
+        if (cid != null && cid > 0) {
+            criteria.andCidEqualTo(cid);
+        }
         if (goodsId != null) {
             criteria.andIdEqualTo(goodsId);
         }

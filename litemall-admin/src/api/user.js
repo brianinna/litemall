@@ -31,6 +31,13 @@ export function addCredit(data) {
   })
 }
 
+export function updateUserType(data) {
+  return request({
+    url: '/user/userType',
+    method: 'post',
+    data
+  })
+}
 export function getCredit(query) {
   return request({
     url: '/user/credit',

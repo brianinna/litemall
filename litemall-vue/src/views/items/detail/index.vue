@@ -61,7 +61,7 @@
 
 import { goodsDetail, cartGoodsCount, collectAddOrDelete, cartAdd, cartFastAdd } from '@/api/api';
 
-import { Sku, Swipe, SwipeItem, GoodsAction, GoodsActionButton, GoodsActionIcon, Popup } from 'vant';
+import { Sku, Swipe, SwipeItem, GoodsAction, GoodsActionButton, GoodsActionIcon, Popup, Toast } from 'vant';
 import { setLocalStorage } from '@/utils/local-storage';
 import popupProps from './popup-props';
 import _ from 'lodash';
@@ -222,8 +222,30 @@ export default {
         });
         that.showSku = false;
       });
+    }, isDuringDate() {
+      var myDate = new Date()
+      var str = myDate.getFullYear() + "/" + (myDate.getMonth() + 1) + "/" + myDate.getDate();   //2017-12-28
+
+      var beginDateStr = str + ' 8:30'
+      var endDateStr = str + ' 19:00'
+      var curDate = new Date(),
+        beginDate = new Date(beginDateStr),
+        endDate = new Date(endDateStr);
+      console.log(curDate)
+      console.log(beginDate)
+
+      console.log(endDate)
+
+      if (curDate >= beginDate && curDate <= endDate) {
+        return true;
+      }
+      return false;
     },
     buyGoods(data) {
+      if (!this.isDuringDate()) {
+        Toast.fail('还未开始营业，营业时间8:30-19:00');
+        return
+      }
       let that = this;
       let params = {
         goodsId: data.goodsId,
@@ -244,6 +266,7 @@ export default {
       } else {
         params.productId = this.getProductIdByOne(data.selectedSkuComb.s1);
       }
+      console.log("????")
       cartFastAdd(params).then(res => {
         let cartId = res.data.data;
         setLocalStorage({ CartId: cartId });

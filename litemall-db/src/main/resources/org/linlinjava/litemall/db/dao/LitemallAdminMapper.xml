@@ -593,5 +593,8 @@
     select
     `name`
     from litemall_admin
+      <if test="record.id != null">
+        where cid = #{cid,jdbcType=INTEGER}
+      </if>
   </select>
 </mapper>

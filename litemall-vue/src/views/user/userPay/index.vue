@@ -3,10 +3,19 @@
     <div>充值金额(元)</div>
     <div style="	padding-top: 20px;">
       一键充值
-      <van-button size="large" type="info" @click="onVip(100)">充值100元，送VIP1桶桶优惠2元</van-button>
+      <van-button size="large" type="info" @click="onVip(128)">充值128元，送VIP</van-button>
     </div>
     <div style="	padding-top: 20px;">
-      <van-button size="large" type="info" @click="onVip(200)">充值200元，送VIP2桶桶优惠4元</van-button>
+      <van-button size="large" type="info" @click="onVip(200)">充值200元，送VIP返10元余额</van-button>
+    </div>
+    <div style="	padding-top: 20px;">
+      <van-button size="large" type="info" @click="onVip(288)">充值288元，送VIP返20元余额</van-button>
+    </div>
+    <div style="	padding-top: 20px;">
+      <van-button size="large" type="info" @click="onVip(500)">充值500元，送VIP返60元余额</van-button>
+    </div>
+    <div style="	padding-top: 20px;">
+      <van-button size="large" type="info" @click="onVip(1000)">充值1000元，送VIP返150元余额</van-button>
     </div>
     <div style="	padding-top: 50px;">
       自定义金额

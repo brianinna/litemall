@@ -67,7 +67,7 @@
       <el-table-column align="center" label="注册日期" prop="addTime" />
       <el-table-column align="center" label="用户类型" prop="status">
         <template slot-scope="scope">
-          <el-tag>{{ statusDic[scope.row.status] }}</el-tag>
+          <el-tag @click="handleStatus(scope.row)">{{ statusDic[scope.row.status] }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="用户等级" prop="userLevel">
@@ -83,7 +83,7 @@
             size="mini"
           >地址修改</el-button>-->
           <el-button
-            v-permission="['POST /admin/user/list']"
+            v-permission="['GET /admin/user/list']"
             type="primary"
             size="mini"
             @click="handleAddress(scope.row)"
@@ -127,7 +127,7 @@
     />
 
     <!-- 地址修改对话框 -->
-    <el-dialog :visible.sync="addressDialogVisible" title="发货">
+    <el-dialog :visible.sync="addressDialogVisible" title="地址修改">
       <el-form
         ref="addressForm"
         :model="addressForm"
@@ -152,6 +152,27 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="addressDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="updateAdrees()">确定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 更改用户类型 -->
+    <el-dialog :visible.sync="statusDialogVisible" title="更改用户类型">
+      <el-form
+        ref="statusForm"
+        :model="statusForm"
+        status-icon
+        label-position="left"
+        label-width="100px"
+        style="width: 400px; margin-left:50px;"
+      >
+        <el-form-item label="用户类型" prop="status">
+          <el-radio v-model="statusForm.status" label="1">商户</el-radio>
+          <el-radio v-model="statusForm.status" label="2">住户</el-radio>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="statusDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateStatus()">确定</el-button>
       </div>
     </el-dialog>
 
@@ -182,7 +203,7 @@
 </template>
 
 <script>
-import { fetchList, updateAddrees, addCredit, getCredit } from '@/api/user'
+import { fetchList, updateAddrees, addCredit, getCredit, updateUserType } from '@/api/user'
 import { findNames } from '@/api/admin'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
@@ -217,6 +238,8 @@ export default {
       address: [],
       addressDialogVisible: false,
       creditDialogVisible: false,
+      statusDialogVisible: false,
+      status: undefined,
 
       addressForm: {
         id: undefined,
@@ -228,6 +251,9 @@ export default {
       creditForm: {
         id: undefined,
         money: undefined
+      }, statusForm: {
+        id: undefined,
+        status: ''
       },
       credit: ''
     }
@@ -314,6 +340,16 @@ export default {
       /*  this.$nextTick(() => {
         this.$refs['addressForm'].clearValidate()
       }) */
+    }, handleStatus(row) {
+      console.log('here')
+      this.statusForm.status = row.status.toString()
+      this.statusDialogVisible = true
+      console.log(this.statusForm.status)
+
+      this.statusForm.id = row.id
+      /*  this.$nextTick(() => {
+        this.$refs['addressForm'].clearValidate()
+      }) */
     }, updateCredit() {
       addCredit(this.creditForm).then(response => {
         console.log('respones seccuss', response)
@@ -322,6 +358,24 @@ export default {
           title: '成功',
           message: '信用修改成功'
         })
+      }).catch(response => {
+        console.log('respones fail', response)
+
+        this.$notify.error({
+          title: '失败',
+          message: response.data.errmsg
+        })
+      })
+    }, updateStatus() {
+      // this.statusForm.status = this.status
+      updateUserType(this.statusForm).then(response => {
+        console.log('respones seccuss', response)
+        this.statusDialogVisible = false
+        this.$notify.success({
+          title: '成功',
+          message: '用户类型修改成功'
+        })
+        this.getList()
       }).catch(response => {
         console.log('respones fail', response)
 

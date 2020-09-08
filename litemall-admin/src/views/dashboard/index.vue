@@ -1,6 +1,5 @@
 <template>
   <div class="dashboard-editor-container">
-
     <el-row :gutter="40" class="panel-group">
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
@@ -9,7 +8,7 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">用户数量</div>
-            <count-to :start-val="0" :end-val="userTotal" :duration="2600" class="card-panel-num"/>
+            <count-to :start-val="0" :end-val="userTotal" :duration="2600" class="card-panel-num" />
           </div>
         </div>
       </el-col>
@@ -20,7 +19,7 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">商品数量</div>
-            <count-to :start-val="0" :end-val="goodsTotal" :duration="3000" class="card-panel-num"/>
+            <count-to :start-val="0" :end-val="goodsTotal" :duration="3000" class="card-panel-num" />
           </div>
         </div>
       </el-col>
@@ -31,7 +30,12 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">货品数量</div>
-            <count-to :start-val="0" :end-val="productTotal" :duration="3200" class="card-panel-num"/>
+            <count-to
+              :start-val="0"
+              :end-val="productTotal"
+              :duration="3200"
+              class="card-panel-num"
+            />
           </div>
         </div>
       </el-col>
@@ -42,7 +46,7 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">订单数量</div>
-            <count-to :start-val="0" :end-val="orderTotal" :duration="3600" class="card-panel-num"/>
+            <count-to :start-val="0" :end-val="orderTotal" :duration="3600" class="card-panel-num" />
           </div>
         </div>
       </el-col>
@@ -96,7 +100,7 @@ export default {
 .panel-group {
   margin-top: 18px;
 
-  .card-panel-col{
+  .card-panel-col {
     margin-bottom: 32px;
   }
   .card-panel {
@@ -107,14 +111,14 @@ export default {
     overflow: hidden;
     color: #666;
     background: #fff;
-    box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
-    border-color: rgba(0, 0, 0, .05);
+    box-shadow: 4px 4px 40px rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.05);
     &:hover {
       .card-panel-icon-wrapper {
         color: #fff;
       }
       .icon-people {
-         background: #40c9c6;
+        background: #40c9c6;
       }
       .icon-message {
         background: #36a3f7;
@@ -123,7 +127,7 @@ export default {
         background: #f4516c;
       }
       .icon-shoppingCard {
-        background: #34bfa3
+        background: #34bfa3;
       }
     }
     .icon-people {
@@ -136,7 +140,7 @@ export default {
       color: #f4516c;
     }
     .icon-shoppingCard {
-      color: #34bfa3
+      color: #34bfa3;
     }
     .card-panel-icon-wrapper {
       float: left;

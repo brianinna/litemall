@@ -34,8 +34,8 @@ public class AdminCourierController {
     private LitemallAdminService adminService;
 
 
-    @RequiresPermissions("admin:admin:list")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "查询")
+    @RequiresPermissions("admin:courier:list")
+    @RequiresPermissionsDesc(menu = {"系统管理", "配送员管理"}, button = "查询")
     @GetMapping("/list")
     public Object list(String username,
                        @RequestParam(name = "cid", required = false)Integer cid,
@@ -52,13 +52,14 @@ public class AdminCourierController {
         List<Integer[]> roleList = new ArrayList<>();
         roleList.add(new Integer[]{4});
         roleList.add(new Integer[]{4,11});
+        roleList.add(new Integer[]{4,11,13});
         List<LitemallAdmin> courierList = adminService.queryCourierSelective(username, page, limit,sort, order, cid,roleList,status);
         return ResponseUtil.okList(courierList);
     }
 
 
-    @RequiresPermissions("admin:admin:create")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "添加")
+    @RequiresPermissions("admin:courier:create")
+    @RequiresPermissionsDesc(menu = {"系统管理", "配送员管理"}, button = "添加")
     @PostMapping("/create")
     public Object create(@RequestBody LitemallAdmin admin) {
 
@@ -76,16 +77,16 @@ public class AdminCourierController {
         return ResponseUtil.ok(admin);
     }
 
-    @RequiresPermissions("admin:admin:read")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "详情")
+    @RequiresPermissions("admin:courier:read")
+    @RequiresPermissionsDesc(menu = {"系统管理", "配送员管理"}, button = "详情")
     @GetMapping("/read")
     public Object read(@NotNull Integer id) {
         LitemallAdmin courier = adminService.findById(id);
         return ResponseUtil.ok(courier);
     }
 
-    @RequiresPermissions("admin:admin:update")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "编辑")
+    @RequiresPermissions("admin:courier:update")
+    @RequiresPermissionsDesc(menu = {"系统管理", "配送员管理"}, button = "编辑")
     @PostMapping("/update")
     public Object update(@RequestBody LitemallAdmin courier) {
        
@@ -106,8 +107,8 @@ public class AdminCourierController {
         return ResponseUtil.ok(courier);
     }
 
-    @RequiresPermissions("admin:admin:delete")
-    @RequiresPermissionsDesc(menu = {"系统管理", "管理员管理"}, button = "删除")
+    @RequiresPermissions("admin:courier:delete")
+    @RequiresPermissionsDesc(menu = {"系统管理", "配送员管理"}, button = "删除")
     @PostMapping("/delete")
     public Object delete(@RequestBody LitemallAdmin courier) {
         Integer anothercourierId = courier.getId();

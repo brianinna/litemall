@@ -279,9 +279,13 @@ public class WxGoodsController {
             searchHistoryVo.setFrom("wx");
             searchHistoryService.save(searchHistoryVo);
         }
-
+        Integer cid = 0;
+        if (userId != null) {
+            LitemallUser user = userService.findById(userId);
+            cid = user.getCid();
+        }
         //查询列表数据
-        List<LitemallGoods> goodsList = goodsService.querySelective(categoryId, brandId, keyword, isHot, isNew, page, limit, sort, order);
+        List<LitemallGoods> goodsList = goodsService.querySelective(cid,categoryId, brandId, keyword, isHot, isNew, page, limit, sort, order);
 
         // 查询商品所属类目列表。
         List<Integer> goodsCatIds = goodsService.getCatIds(brandId, keyword, isHot, isNew);

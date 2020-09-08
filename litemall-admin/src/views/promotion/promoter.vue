@@ -48,6 +48,11 @@
       <el-table-column align="center" label="姓名" prop="name" />
 
       <el-table-column align="center" label="手机号码" prop="phone" />
+      <el-table-column align="center" label="今日统计" prop="phone" />
+
+      <el-table-column align="center" label="本月统计" prop="phone" />
+
+      <el-table-column align="center" label="总计" prop="phone" />
     </el-table>
 
     <pagination

@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -93,9 +94,12 @@ public class LitemallOrderService {
         return litemallOrderMapper.selectByExample(example);
     }
 
-    public List<LitemallOrderVO> querySelective(Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray, String message, Integer page, Integer limit, String sort, String order) {
+    public List<LitemallOrderVO> querySelective(Integer cid, Integer userId, String orderSn, LocalDateTime start, LocalDateTime end, List<Short> orderStatusArray, String message, Integer page, Integer limit, String sort, String order) {
         LitemallOrderExample example = new LitemallOrderExample();
         LitemallOrderExample.Criteria criteria = example.createCriteria();
+        if (cid != null && cid > 0) {
+            criteria.andCidEqualTo(cid);
+        }
 
         if (userId != null) {
             criteria.andUserIdEqualTo(userId);
@@ -103,16 +107,16 @@ public class LitemallOrderService {
         if (!StringUtils.isEmpty(orderSn)) {
             criteria.andOrderSnEqualTo(orderSn);
         }
-        if(start != null){
+        if (start != null) {
             criteria.andAddTimeGreaterThanOrEqualTo(start);
         }
-        if(end != null){
+        if (end != null) {
             criteria.andAddTimeLessThanOrEqualTo(end);
         }
         if (orderStatusArray != null && orderStatusArray.size() != 0) {
             criteria.andOrderStatusIn(orderStatusArray);
         }
-        if (!StringUtils.isEmpty(message) ) {
+        if (!StringUtils.isEmpty(message)) {
             criteria.andMessageEqualTo(message);
         }
         criteria.andDeletedEqualTo(false);
@@ -208,4 +212,26 @@ public class LitemallOrderService {
         order.setUpdateTime(LocalDateTime.now());
         litemallOrderMapper.updateByPrimaryKeySelective(order);
     }
+
+    public int countOrder(Integer cid, LocalDateTime start, LocalDateTime end, String message) {
+        if (start == null) {
+            LocalDateTime today_start = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+            start = today_start;
+        }
+
+        if (end == null) {
+            LocalDateTime today_start = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+            end = today_start;
+
+        }
+        LitemallOrderExample example = new LitemallOrderExample();
+        if (!StringUtils.isEmpty(message)) {
+            example.or().andCidEqualTo(cid).andShipTimeBetween(start, end).andDeletedEqualTo(false).andMessageEqualTo(message);
+        } else {
+            example.or().andCidEqualTo(cid).andShipTimeBetween(start, end).andDeletedEqualTo(false);
+        }
+        return (int) litemallOrderMapper.countByExample(example);
+    }
+
+
 }

@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -47,9 +50,12 @@ public class LitemallUserService {
         return userMapper.updateByPrimaryKeySelective(user);
     }
 
-    public List<LitemallUserVO> querySelective(String username, String mobile, String promoter, Integer page, Integer size, String sort, String order) {
+    public List<LitemallUserVO> querySelective(Integer cid,String username, String mobile, String promoter, Integer page, Integer size, String sort, String order) {
         LitemallUserExample example = new LitemallUserExample();
         LitemallUserExample.Criteria criteria = example.createCriteria();
+        if (cid !=  null && cid > 0) {
+            criteria.andCidEqualTo(cid);
+        }
 
         if (!StringUtils.isEmpty(username)) {
             criteria.andUsernameLike("%" + username + "%");
@@ -109,5 +115,22 @@ public class LitemallUserService {
 
     public void deleteById(Integer id) {
         userMapper.logicalDeleteByPrimaryKey(id);
+    }
+
+    public int countNewUser(Integer cid, LocalDateTime start, LocalDateTime end){
+        if (start == null) {
+            LocalDateTime today_start = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
+            start = today_start;
+        }
+
+        if (end == null) {
+            LocalDateTime today_start = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+            end = today_start;
+
+        }
+        LitemallUserExample example = new LitemallUserExample();
+
+            example.or().andCidEqualTo(cid).andAddTimeBetween(start,end).andDeletedEqualTo(false);
+            return (int) userMapper.countByExample(example);
     }
 }
