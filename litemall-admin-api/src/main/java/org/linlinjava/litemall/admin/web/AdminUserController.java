@@ -10,11 +10,12 @@ import org.linlinjava.litemall.core.util.JacksonUtil;
 import org.linlinjava.litemall.core.util.ResponseUtil;
 import org.linlinjava.litemall.core.validator.Order;
 import org.linlinjava.litemall.core.validator.Sort;
-import org.linlinjava.litemall.db.domain.LitemallAdmin;
-import org.linlinjava.litemall.db.domain.LitemallCredit;
-import org.linlinjava.litemall.db.domain.LitemallUser;
+import org.linlinjava.litemall.db.domain.*;
 import org.linlinjava.litemall.db.service.LitemallCreditService;
+import org.linlinjava.litemall.db.service.LitemallLogService;
+import org.linlinjava.litemall.db.service.LitemallOrderService;
 import org.linlinjava.litemall.db.service.LitemallUserService;
+import org.linlinjava.litemall.db.util.OrderUtil;
 import org.linlinjava.litemall.db.vo.LitemallUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
@@ -22,6 +23,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -35,6 +38,10 @@ public class AdminUserController {
 
     @Autowired
     private LitemallCreditService creditService;
+
+
+    @Autowired
+    private LitemallLogService logService;
 
     @RequiresPermissions("admin:user:list")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员管理"}, button = "查询")
@@ -82,8 +89,11 @@ public class AdminUserController {
     @RequiresPermissionsDesc(menu = {"用户管理", "用户类型"}, button = "添加")
     @PostMapping("/userType")
     public Object userType(@RequestBody String body) {
+        LitemallAdmin admin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
         Integer userId = JacksonUtil.parseInteger(body, "id");
         String status = JacksonUtil.parseString(body, "status");
+        String userLevel = JacksonUtil.parseString(body, "userLevel");
+
 
         LitemallUser userList = userService.findById(userId);
         if (userList != null && !StringUtils.isEmpty(status)) {
@@ -91,6 +101,21 @@ public class AdminUserController {
             if (userService.updateById(userList) == 0) {
                 return ResponseUtil.updatedDataFailed();
             }else {
+                return ResponseUtil.ok(userId);
+            }
+        }else if (userList != null && !StringUtils.isEmpty(userLevel)) {
+            userList.setUserLevel(Byte.parseByte(userLevel));
+            userList.setBirthday(LocalDate.now());
+            if (userService.updateById(userList) == 0) {
+                return ResponseUtil.updatedDataFailed();
+            }else {
+                LitemallLog log = new LitemallLog();
+                log.setAdmin(admin.getName());
+                log.setAction("更改用户VIP");
+                log.setResult("userId"+userId+"vip状态变为"+userLevel);
+                log.setStatus(true);
+                logService.add(log);
+
                 return ResponseUtil.ok(userId);
             }
         }else {

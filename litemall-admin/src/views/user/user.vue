@@ -72,7 +72,7 @@
       </el-table-column>
       <el-table-column align="center" label="用户等级" prop="userLevel">
         <template slot-scope="scope">
-          <el-tag>{{ levelDic[scope.row.userLevel] }}</el-tag>
+          <el-tag @click="handleLevel(scope.row)">{{ levelDic[scope.row.userLevel] }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" width="250" class-name="small-padding fixed-width">
@@ -175,6 +175,26 @@
         <el-button type="primary" @click="updateStatus()">确定</el-button>
       </div>
     </el-dialog>
+    <!-- 更改vip -->
+    <el-dialog :visible.sync="levelDialogVisible" title="更改用户类型">
+      <el-form
+        ref="statusForm"
+        :model="statusForm"
+        status-icon
+        label-position="left"
+        label-width="100px"
+        style="width: 400px; margin-left:50px;"
+      >
+        <el-form-item label="用户类型" prop="status">
+          <el-radio v-model="statusForm.userLevel" label="0">普通用户</el-radio>
+          <el-radio v-model="statusForm.userLevel" label="1">VIP</el-radio>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="statusDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateStatus()">确定</el-button>
+      </div>
+    </el-dialog>
 
     <!-- 增加余额 -->
     <el-dialog :visible.sync="creditDialogVisible" title="增加余额">
@@ -239,6 +259,7 @@ export default {
       addressDialogVisible: false,
       creditDialogVisible: false,
       statusDialogVisible: false,
+      levelDialogVisible: false,
       status: undefined,
 
       addressForm: {
@@ -253,7 +274,8 @@ export default {
         money: undefined
       }, statusForm: {
         id: undefined,
-        status: ''
+        status: '',
+        userLevel: ''
       },
       credit: ''
     }
@@ -350,6 +372,11 @@ export default {
       /*  this.$nextTick(() => {
         this.$refs['addressForm'].clearValidate()
       }) */
+    }, handleLevel(row) {
+      console.log('here')
+      this.statusForm.userLevel = row.userLevel.toString()
+      this.levelDialogVisible = true
+      this.statusForm.id = row.id
     }, updateCredit() {
       addCredit(this.creditForm).then(response => {
         console.log('respones seccuss', response)
@@ -371,6 +398,8 @@ export default {
       updateUserType(this.statusForm).then(response => {
         console.log('respones seccuss', response)
         this.statusDialogVisible = false
+        this.levelDialogVisible = false
+
         this.$notify.success({
           title: '成功',
           message: '用户类型修改成功'

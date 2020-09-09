@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -890,7 +891,38 @@ public class WxOrderService {
                 logger.info("`````是VIP");
                 LitemallUser user = userService.findById(order.getUserId());
                 user.setUserLevel(new Byte("1"));
+                user.setBirthday(LocalDate.now());
                 userService.updateById(user);
+                taskService.removeTask(new OrderUnpaidTask(order.getId()));
+                order.setOrderStatus(OrderUtil.STATUS_CONFIRM);
+                orderService.updateWithOptimisticLocker(order);
+                logger.info("订单更改成功");
+
+                return WxPayNotifyResponse.success("处理成功!");
+            }
+            if (orderGoods.getGoodsSn().equals("10032001") ||orderGoods.getGoodsSn().equals("10032002")) {//
+                logger.info("`````送饮水机");
+                LitemallUser user = userService.findById(order.getUserId());
+                user.setUserLevel(new Byte("1"));
+                user.setBirthday(LocalDate.now());
+                userService.updateById(user);
+                logger.info("会员升级成功");
+
+                LitemallCredit credit = new LitemallCredit();
+                credit.setUserId(user.getId());
+                if(orderGoods.getGoodsSn().equals("10032001")){
+                    credit.setAmount(38800L);
+                    credit.setContent("会员余额充值，388送台式饮水机");
+                }else {
+                    credit.setAmount(68800L);
+                    credit.setContent("会员余额充值，688送立式饮水机");
+                }
+                credit.setDc(1);
+                credit.setCreateTime(LocalDateTime.now());
+                credit.setUpdateTime(LocalDateTime.now());
+                creditService.add(credit);
+                logger.info("会员余额充值成功");
+
                 taskService.removeTask(new OrderUnpaidTask(order.getId()));
                 order.setOrderStatus(OrderUtil.STATUS_CONFIRM);
                 orderService.updateWithOptimisticLocker(order);
@@ -904,6 +936,7 @@ public class WxOrderService {
                 LitemallUser user = userService.findById(order.getUserId());
                 if (result.getTotalFee() >= 12800 && !user.getUserLevel().equals(new Byte("1"))) {
                     user.setUserLevel(new Byte("1"));
+                    user.setBirthday(LocalDate.now());
                     userService.updateById(user);
                 }
                 //增加余额
