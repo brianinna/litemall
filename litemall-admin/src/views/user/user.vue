@@ -136,9 +136,9 @@
         label-width="100px"
         style="width: 400px; margin-left:50px;"
       >
-        <!--  <el-form-item label="姓名" prop="name">
+        <el-form-item label="姓名" prop="name">
           <el-input v-model="addressForm.name" />
-        </el-form-item>-->
+        </el-form-item>
         <el-form-item label="手机号" prop="tel">
           <el-input v-model="addressForm.tel" />
         </el-form-item>
@@ -267,7 +267,7 @@ export default {
         name: undefined,
         tel: undefined,
         addressDetail: undefined,
-        rem: undefined
+        postalCode: undefined
       },
       creditForm: {
         id: undefined,
@@ -329,7 +329,11 @@ export default {
     handleAddress(row) {
       console.log('handleaddres')
       this.addressDialogVisible = true
-      this.addressForm = row.address
+      this.addressForm.id = row.address.id
+      this.addressForm.tel = row.address.tel
+      this.addressForm.addressDetail = row.address.addressDetail
+      this.addressForm.postalCode = row.address.postalCode
+      this.addressForm.name = row.address.name
       console.log('addresform', this.addressForm)
       this.$nextTick(() => {
         this.$refs['addressForm'].clearValidate()
@@ -342,7 +346,7 @@ export default {
           title: '成功',
           message: '地址修改成功'
         })
-        this.address[this.addressForm.id - 1] = this.addressForm
+        this.getList()
       }).catch(response => {
         console.log('respones fail', response)
 

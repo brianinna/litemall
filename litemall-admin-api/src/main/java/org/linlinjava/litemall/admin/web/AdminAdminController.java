@@ -157,6 +157,8 @@ public class AdminAdminController {
         List<Integer[]> roleList = new ArrayList<>();
         roleList.add(new Integer[]{11});
         roleList.add(new Integer[]{4,11});
+        roleList.add(new Integer[]{4,11,13});
+        roleList.add(new Integer[]{11,13});
         List<LitemallAdmin> promoter = adminService.queryCourierSelective("", 1, 100,"id", "ASC", current.getCid(),roleList,"");
 
         HashMap<Integer, String> hashMap = new HashMap<>();
