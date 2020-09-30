@@ -152,7 +152,7 @@ public class WxOrderService {
             orderVo.put("orderStatusText", OrderUtil.orderStatusText(o));
             orderVo.put("handleOption", OrderUtil.build(o));
             orderVo.put("aftersaleStatus", o.getAftersaleStatus());
-
+            orderVo.put("integralPrice", o.getIntegralPrice());
             LitemallGroupon groupon = grouponService.queryByOrderId(o.getId());
             if (groupon != null) {
                 orderVo.put("isGroupin", true);
@@ -932,7 +932,9 @@ public class WxOrderService {
             }
             //会员充值
             if (orderGoods.getGoodsSn().equals("0")) {//
+                Integer amount = result.getTotalFee();
                 logger.info("`````是余额充值");
+                logger.info(amount);
                 LitemallUser user = userService.findById(order.getUserId());
                 if (result.getTotalFee() >= 12800 && !user.getUserLevel().equals(new Byte("1"))) {
                     user.setUserLevel(new Byte("1"));
@@ -942,16 +944,16 @@ public class WxOrderService {
                 //增加余额
                 LitemallCredit credit = new LitemallCredit();
                 credit.setUserId(user.getId());
-                if(result.getTotalFee() == 20000){
+                if(result.getTotalFee().equals(20000)){
                     credit.setAmount(Long.valueOf(result.getTotalFee()) + 1000L);
                     credit.setContent("会员余额充值，满200返10元");
-                }else if(result.getTotalFee() == 28800){
+                }else if(result.getTotalFee().equals(28800)){
                     credit.setAmount(Long.valueOf(result.getTotalFee()) + 2000L);
                     credit.setContent("会员余额充值，满288返20元");
-                } if(result.getTotalFee() == 50000){
+                } if(result.getTotalFee().equals(50000)){
                     credit.setAmount(Long.valueOf(result.getTotalFee()) + 6000L);
                     credit.setContent("会员余额充值，满500返60元");
-                } if(result.getTotalFee() == 100000){
+                } if(result.getTotalFee().equals(100000)){
                     credit.setAmount(Long.valueOf(result.getTotalFee()) + 15000L);
                     credit.setContent("会员余额充值，满1000返150元");
                 } else{
