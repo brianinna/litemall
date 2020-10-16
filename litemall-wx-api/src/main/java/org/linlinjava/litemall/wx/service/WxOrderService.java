@@ -887,7 +887,7 @@ public class WxOrderService {
         for (int i = 0; i < list.size(); i++) {
             LitemallOrderGoods orderGoods = list.get(i);
             logger.info(orderGoods);
-            if (orderGoods.getGoodsSn().equals("1003000")) {//
+            if (orderGoods.getGoodsSn().equals("1003000")||orderGoods.getGoodsSn().equals("1004000")) {//
                 logger.info("`````是VIP");
                 LitemallUser user = userService.findById(order.getUserId());
                 user.setUserLevel(new Byte("1"));
@@ -900,7 +900,7 @@ public class WxOrderService {
 
                 return WxPayNotifyResponse.success("处理成功!");
             }
-            if (orderGoods.getGoodsSn().equals("10032001") ||orderGoods.getGoodsSn().equals("10032002")) {//
+            if (orderGoods.getGoodsSn().equals("10032001") ||orderGoods.getGoodsSn().equals("10032002")||orderGoods.getGoodsSn().equals("10042001") ||orderGoods.getGoodsSn().equals("10042002")) {//
                 logger.info("`````送饮水机");
                 LitemallUser user = userService.findById(order.getUserId());
                 user.setUserLevel(new Byte("1"));
@@ -910,7 +910,7 @@ public class WxOrderService {
 
                 LitemallCredit credit = new LitemallCredit();
                 credit.setUserId(user.getId());
-                if(orderGoods.getGoodsSn().equals("10032001")){
+                if(orderGoods.getGoodsSn().equals("10032001") || orderGoods.getGoodsSn().equals("10042001")){
                     credit.setAmount(38800L);
                     credit.setContent("会员余额充值，388送台式饮水机");
                 }else {

@@ -6,18 +6,23 @@ export default [
     name: 'cart',
     meta: {
       login: true,
-      showHeader:false,
-      title:"购物车"
+      showHeader: false,
+      title: "购物车"
     },
-    components: { 
-      default: () => import('@/views/order/tabbar-cart'), 
-      tabbar: Tabbar 
+    components: {
+      default: () => import('@/views/order/tabbar-cart'),
+      tabbar: Tabbar
     }
   },
   {
     path: '/order/checkout',
     name: 'orderCheckout',
     component: () => import('@/views/order/checkout')
+  },
+  {
+    path: '/order/checkout-new',
+    name: 'orderCheckoutNew',
+    component: () => import('@/views/order/checkout-new')
   },
   {
     path: '/order/order-detail',

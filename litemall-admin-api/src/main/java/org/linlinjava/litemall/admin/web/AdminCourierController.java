@@ -71,7 +71,7 @@ public class AdminCourierController {
         }
         Integer[] roleId = new Integer[]{4};
         admin.setRoleIds(roleId);
-
+        admin.setStatus("1");
         adminService.add(admin);
         logHelper.logAuthSucceed("添加配送员", username);
         return ResponseUtil.ok(admin);

@@ -46,18 +46,19 @@ public class AdminUserController {
     @RequiresPermissions("admin:user:list")
     @RequiresPermissionsDesc(menu = {"用户管理", "会员管理"}, button = "查询")
     @GetMapping("/list")
-    public Object list(String username, String mobile, String promoter,
+    public Object list(String nickname, String mobile, String promoter,
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
+                       @RequestParam("cid")Integer cid,
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
         LitemallAdmin currentAdmin = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
-        Integer cid = 0;
-        if (currentAdmin != null) {
+
+        if (cid < 1000 && currentAdmin != null) {
             cid = currentAdmin.getCid();
         }
 
-        List<LitemallUserVO> userList = userService.querySelective(cid, username, mobile, promoter, page, limit, sort, order);
+        List<LitemallUserVO> userList = userService.querySelective(cid, nickname, mobile, promoter, page, limit, sort, order);
         return ResponseUtil.okList(userList);
     }
 

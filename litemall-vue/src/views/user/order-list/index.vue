@@ -1,68 +1,80 @@
 <template>
   <div class="order_list">
-    <van-tabs v-model="activeIndex"
-              :swipe-threshold="5"
-              @click="handleTabClick">
-      <van-tab v-for="(tabTitle, index) in tabTitles"
-               :title="tabTitle"
-               :key="index">
-        <van-list v-model="loading"
-                  :finished="finished"
-                  :immediate-check="false"
-                  finished-text="没有更多了"
-                  @load="getOrderList">
-          <van-panel v-for="(el, i) in orderList"
-                     :key="i"
-                     :title="'订单编号: ' + el.orderSn"
-                     :status="el.orderStatusText"
-                     @click.native="toOrderDetail(el.id)">
-            <van-card v-for="(goods, goodsI) in el.goodsList"
-                      :key="goodsI"
-                      :title="goods.goodsName"
-                      :num="goods.number"
-                      :thumb="goods.picUrl">
+    <van-tabs v-model="activeIndex" :swipe-threshold="5" @click="handleTabClick">
+      <van-tab v-for="(tabTitle, index) in tabTitles" :title="tabTitle" :key="index">
+        <van-list
+          v-model="loading"
+          :finished="finished"
+          :immediate-check="false"
+          finished-text="没有更多了"
+          @load="getOrderList"
+        >
+          <van-panel
+            v-for="(el, i) in orderList"
+            :key="i"
+            :title="'订单编号: ' + el.orderSn"
+            :status="el.orderStatusText"
+            @click.native="toOrderDetail(el.id)"
+          >
+            <van-card
+              v-for="(goods, goodsI) in el.goodsList"
+              :key="goodsI"
+              :title="goods.goodsName"
+              :num="goods.number"
+              :thumb="goods.picUrl"
+            >
               <div slot="desc">
                 <div class="desc">
-                  <van-tag plain
-                           style="margin-right:6px;"
-                           v-for="(spec, index) in goods.specifications"
-                           :key="index">
-                    {{spec}}
-                  </van-tag>
+                  <van-tag
+                    plain
+                    style="margin-right:6px;"
+                    v-for="(spec, index) in goods.specifications"
+                    :key="index"
+                  >{{spec}}</van-tag>
                 </div>
               </div>
             </van-card>
-            <div class="total">合计: {{el.actualPrice * 100 | yuan}}（含运费{{el.post_fee | yuan}}）</div>
+            <div
+              class="total"
+            >余额支付：{{el.integralPrice * 100 | yuan}} 实际支付: {{el.actualPrice * 100 | yuan}}（含运费{{el.post_fee | yuan}}）</div>
 
-            <div slot="footer"
-                 class="footer_btn">
-              <van-button size="small"
-                          v-if="el.handleOption.cancel"
-                          @click.stop="cancelOrder(el.id)">取消订单</van-button>
-              <van-button size="small"
-                          v-if="el.handleOption.pay"
-                          type="danger"
-                          @click.stop="toPay(el.id)">去支付</van-button>
-              <van-button size="small"
-                          v-if="el.handleOption.refund"
-                          type="danger"
-                          @click.stop="refundOrder(el.id)">退款</van-button>
-              <van-button size="small"
-                          v-if="el.handleOption.confirm"
-                          type="danger"
-                          @click.stop="confirmOrder(el.id)">确认收货</van-button>
-              <van-button size="small"
-                          v-if="el.handleOption.delete"
-                          @click.stop="delOrder(el.id)">删除订单</van-button>
-              <van-button size="small"
-                          v-if="el.handleOption.comment"
-                          @click.stop="commentOrder(el.id)">去评价</van-button>
+            <div slot="footer" class="footer_btn">
+              <van-button
+                size="small"
+                v-if="el.handleOption.cancel"
+                @click.stop="cancelOrder(el.id)"
+              >取消订单</van-button>
+              <van-button
+                size="small"
+                v-if="el.handleOption.pay"
+                type="danger"
+                @click.stop="toPay(el.id)"
+              >去支付</van-button>
+              <van-button
+                size="small"
+                v-if="el.handleOption.refund"
+                type="danger"
+                @click.stop="refundOrder(el.id)"
+              >退款</van-button>
+              <!--    <van-button
+                size="small"
+                v-if="el.handleOption.confirm"
+                type="danger"
+                @click.stop="confirmOrder(el.id)"
+              >确认收货</van-button>-->
+              <van-button
+                size="small"
+                v-if="el.handleOption.delete"
+                @click.stop="delOrder(el.id)"
+              >删除订单</van-button>
+              <van-button
+                size="small"
+                v-if="el.handleOption.comment"
+                @click.stop="commentOrder(el.id)"
+              >去评价</van-button>
             </div>
-
           </van-panel>
-
         </van-list>
-
       </van-tab>
     </van-tabs>
   </div>
@@ -113,6 +125,7 @@ export default {
         this.orderList.push(...res.data.data.list);
         this.loading = false;
         this.finished = res.data.data.page >= res.data.data.pages;
+        console.log(this.orderList)
       });
     },
     delOrder(id) {
@@ -125,7 +138,7 @@ export default {
             this.$toast('已删除订单');
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     cancelOrder(id) {
       this.$dialog
@@ -136,7 +149,7 @@ export default {
             this.$toast('已取消该订单');
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     refundOrder(id) {
       this.$dialog
@@ -147,8 +160,8 @@ export default {
             this.$toast('已申请订单退款');
           });
         })
-        .catch(() => {});
-    },    
+        .catch(() => { });
+    },
     confirmOrder(id) {
       this.$dialog
         .confirm({
@@ -160,9 +173,9 @@ export default {
             this.$toast('已确认收货');
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
-    commentOrder(id) {},
+    commentOrder(id) { },
     toPay(id) {
       this.$router.push({ name: 'payment', params: { orderId: id } });
     },

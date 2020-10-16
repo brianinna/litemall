@@ -1,13 +1,15 @@
 <template>
   <div class="order_detail">
     <div class="order-goods">
-      <van-card v-for="item in orderGoods"
-                :key="item.id"
-                :title="item.goodsName"
-                desc="暂无描述"
-                :num="item.number"
-                :price="item.price +'.00'"
-                :thumb="item.picUrl"></van-card>
+      <van-card
+        v-for="item in orderGoods"
+        :key="item.id"
+        :title="item.goodsName"
+        desc="暂无描述"
+        :num="item.number"
+        :price="item.price +'.00'"
+        :thumb="item.picUrl"
+      ></van-card>
 
       <van-cell-group>
         <van-cell title="商品金额">
@@ -20,9 +22,11 @@
     </div>
 
     <van-cell-group style="margin-top: 20px;">
-      <van-cell icon="dingwei"
-                :title="`${orderInfo.consignee}  ${orderInfo.mobile}`"
-                :label="orderInfo.address" />
+      <van-cell
+        icon="dingwei"
+        :title="`${orderInfo.consignee}  ${orderInfo.mobile}`"
+        :label="orderInfo.address"
+      />
     </van-cell-group>
 
     <van-cell-group style="margin-top: 20px;">
@@ -41,38 +45,45 @@
       </van-cell>
       <!-- 订单动作 -->
       <van-cell>
-        <van-button size="small"
-                    v-if="handleOption.cancel"
-                    @click="cancelOrder(orderInfo.id)"
-                    style=" float:right"
-                    round
-                    type="danger">取消订单</van-button>
-        <van-button size="small"
-                    v-if="handleOption.pay"
-                    @click="payOrder(orderInfo.id)"
-                    style=" float:right"
-                    round
-                    type="danger">去支付</van-button>
-        <van-button size="small"
-                    v-if="handleOption.delete"
-                    @click="deleteOrder(orderInfo.id)"
-                    style=" float:right"
-                    type="danger">删除订单</van-button>
-        <van-button size="small"
+        <van-button
+          size="small"
+          v-if="handleOption.cancel"
+          @click="cancelOrder(orderInfo.id)"
+          style=" float:right"
+          round
+          type="danger"
+        >取消订单</van-button>
+        <van-button
+          size="small"
+          v-if="handleOption.pay"
+          @click="payOrder(orderInfo.id)"
+          style=" float:right"
+          round
+          type="danger"
+        >去支付</van-button>
+        <van-button
+          size="small"
+          v-if="handleOption.delete"
+          @click="deleteOrder(orderInfo.id)"
+          style=" float:right"
+          type="danger"
+        >删除订单</van-button>
+        <!--  <van-button size="small"
                     v-if="handleOption.confirm"
                     @click="confirmOrder(orderInfo.id)"
                     style=" float:right"
-                    type="danger">确认收货</van-button>
-        <van-button size="small"
-                    v-if="handleOption.refund"
-                    @click="refundOrder(orderInfo.id)"
-                    style=" float:right"
-                    type="danger">退款</van-button>
+        type="danger">确认收货</van-button>-->
+        <van-button
+          size="small"
+          v-if="handleOption.refund"
+          @click="refundOrder(orderInfo.id)"
+          style=" float:right"
+          type="danger"
+        >退款</van-button>
       </van-cell>
     </van-cell-group>
 
-    <van-cell-group v-if="showExp()"
-                    style="margin-top: 20px;">
+    <van-cell-group v-if="showExp()" style="margin-top: 20px;">
       <van-cell title="快递公司">
         <span>{{orderInfo.expCode }}</span>
       </van-cell>
@@ -123,7 +134,7 @@ export default {
             this.$router.go(-1);
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     cancelOrder(id) {
       this.$dialog
@@ -134,7 +145,7 @@ export default {
             this.$toast('已取消该订单');
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     confirmOrder(id) {
       this.$dialog
@@ -147,7 +158,7 @@ export default {
             this.$toast('已确认收货');
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     refundOrder(id) {
       this.$dialog
@@ -158,9 +169,9 @@ export default {
             this.$toast('已申请订单退款');
           });
         })
-        .catch(() => {});
+        .catch(() => { });
     },
-    commentOrder(id) {},
+    commentOrder(id) { },
     toPay(id) {
       this.$router.push({ name: 'payment', params: { orderId: id } });
     },

@@ -1,16 +1,46 @@
 <template>
   <div class="app-container">
-
     <!-- 查询和其他操作 -->
     <div class="filter-container">
-      <el-input v-model="listQuery.username" clearable class="filter-item" style="width: 200px;" placeholder="请输入管理员名称" />
-      <el-button v-permission="['GET /admin/admin/list']" class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
-      <el-button v-permission="['POST /admin/admin/create']" class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">添加</el-button>
-      <el-button :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
+      <el-input
+        v-model="listQuery.username"
+        clearable
+        class="filter-item"
+        style="width: 200px"
+        placeholder="请输入管理员名称"
+      />
+      <el-button
+        v-permission="['GET /admin/admin/list']"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >查找</el-button>
+      <el-button
+        v-permission="['POST /admin/admin/create']"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >添加</el-button>
+      <el-button
+        :loading="downloadLoading"
+        class="filter-item"
+        type="primary"
+        icon="el-icon-download"
+        @click="handleDownload"
+      >导出</el-button>
     </div>
 
     <!-- 查询结果 -->
-    <el-table v-loading="listLoading" :data="list" element-loading-text="正在查询中。。。" border fit highlight-current-row>
+    <el-table
+      v-loading="listLoading"
+      :data="list"
+      element-loading-text="正在查询中。。。"
+      border
+      fit
+      highlight-current-row
+    >
       <el-table-column align="center" label="管理员ID" prop="id" sortable />
 
       <el-table-column align="center" label="管理员名称" prop="username" />
@@ -23,28 +53,89 @@
 
       <el-table-column align="center" label="管理员角色" prop="roleIds">
         <template slot-scope="scope">
-          <el-tag v-for="roleId in scope.row.roleIds" :key="roleId" type="primary" style="margin-right: 20px;"> {{ formatRole(roleId) }} </el-tag>
+          <el-tag
+            v-for="roleId in scope.row.roleIds"
+            :key="roleId"
+            type="primary"
+            style="margin-right: 20px"
+          >
+            {{ formatRole(roleId) }}
+          </el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" class-name="small-padding fixed-width">
+      <el-table-column
+        align="center"
+        label="操作"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
-          <el-button v-permission="['POST /admin/admin/update']" type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-          <el-button v-permission="['POST /admin/admin/delete']" type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button
+            v-permission="['POST /admin/admin/update']"
+            type="primary"
+            size="mini"
+            @click="handleUpdate(scope.row)"
+          >编辑</el-button>
+          <el-button
+            v-permission="['POST /admin/admin/delete']"
+            type="danger"
+            size="mini"
+            @click="handleDelete(scope.row)"
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination
+      v-show="total > 0"
+      :total="total"
+      :page.sync="listQuery.page"
+      :limit.sync="listQuery.limit"
+      @pagination="getList"
+    />
 
     <!-- 添加或修改对话框 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="dataForm" status-icon label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="管理员名称" prop="username">
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="dataForm"
+        status-icon
+        label-position="left"
+        label-width="100px"
+        style="width: 400px; margin-left: 50px"
+      >
+        <el-form-item label="门店" prop="username">
+          <el-select
+            v-model="dataForm.cid"
+            style="width: 200px"
+            class="filter-item"
+            placeholder="请选择门店"
+          >
+            <el-option
+              v-for="item in storeDic"
+              :key="item.name"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="账号（字母）" prop="username">
           <el-input v-model="dataForm.username" />
         </el-form-item>
         <el-form-item label="管理员密码" prop="password">
-          <el-input v-model="dataForm.password" type="password" auto-complete="off" />
+          <el-input
+            v-model="dataForm.password"
+            type="password"
+            auto-complete="off"
+          />
+        </el-form-item>
+        <el-form-item label="管理员姓名" prop="name">
+          <el-input v-model="dataForm.name" />
+        </el-form-item>
+        <el-form-item label="管理员手机号" prop="phone">
+          <el-input v-model="dataForm.phone" />
         </el-form-item>
         <el-form-item label="管理员头像" prop="avatar">
           <el-upload
@@ -72,11 +163,14 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
+        <el-button
+          v-if="dialogStatus == 'create'"
+          type="primary"
+          @click="createData"
+        >确定</el-button>
         <el-button v-else type="primary" @click="updateData">确定</el-button>
       </div>
     </el-dialog>
-
   </div>
 </template>
 
@@ -118,6 +212,8 @@ export default {
   components: { Pagination },
   data() {
     return {
+      storeDic: [{ id: 1003, name: '龙湖店' }, { id: 1004, name: '百荣店' }],
+
       uploadPath,
       list: null,
       total: 0,
@@ -135,7 +231,10 @@ export default {
         username: undefined,
         password: undefined,
         avatar: undefined,
-        roleIds: []
+        roleIds: [],
+        cid: undefined,
+        name: undefined,
+        phone: undefined
       },
       dialogFormVisible: false,
       dialogStatus: '',

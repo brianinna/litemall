@@ -6,17 +6,22 @@
         v-model="listQuery.username"
         clearable
         class="filter-item"
-        style="width: 200px;"
+        style="width: 200px"
         placeholder="请输入用户名"
       />
       <el-input
         v-model="listQuery.mobile"
         clearable
         class="filter-item"
-        style="width: 200px;"
+        style="width: 200px"
         placeholder="请输入手机号"
       />
-      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
+      <el-button
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >查找</el-button>
       <el-button
         v-permission="['POST /admin/courier/create']"
         class="filter-item"
@@ -43,7 +48,13 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" width="100px" label="用户ID" prop="id" sortable />
+      <el-table-column
+        align="center"
+        width="100px"
+        label="用户ID"
+        prop="id"
+        sortable
+      />
 
       <el-table-column align="center" label="用户名" prop="name" />
 
@@ -57,7 +68,7 @@
     </el-table>
 
     <pagination
-      v-show="total>0"
+      v-show="total > 0"
       :total="total"
       :page.sync="listQuery.page"
       :limit.sync="listQuery.limit"
@@ -72,18 +83,40 @@
         status-icon
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:50px;"
+        style="width: 400px; margin-left: 50px"
       >
+        <el-form-item label="门店" prop="username">
+          <el-select
+            v-model="dataForm.cid"
+            style="width: 200px"
+            class="filter-item"
+            placeholder="请选择门店"
+          >
+            <el-option
+              v-for="item in storeDic"
+              :key="item.name"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="配送员名称">
           <el-input v-model="dataForm.name" />
         </el-form-item>
         <el-form-item label="配送员手机号">
           <el-input v-model="dataForm.phone" auto-complete="off" />
         </el-form-item>
+        <el-form-item label="账号（字母）" prop="username">
+          <el-input v-model="dataForm.username" />
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">确定</el-button>
+        <el-button
+          v-if="dialogStatus == 'create'"
+          type="primary"
+          @click="createData"
+        >确定</el-button>
         <el-button v-else type="primary" @click="updateData">确定</el-button>
       </div>
     </el-dialog>
@@ -99,6 +132,7 @@ export default {
   components: { Pagination },
   data() {
     return {
+      storeDic: [{ id: 1003, name: '龙湖店' }, { id: 1004, name: '百荣店' }],
       list: null,
       total: 0,
       listLoading: true,
@@ -117,6 +151,7 @@ export default {
       dataForm: {
         cid: undefined,
         username: undefined,
+        name: undefined,
         phone: undefined
       },
       dialogFormVisible: false,
@@ -153,7 +188,6 @@ export default {
     }, createData() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          this.dataForm.cid = store.getters.cid
           console.log(this.dataForm)
           createCourier(this.dataForm)
             .then(response => {

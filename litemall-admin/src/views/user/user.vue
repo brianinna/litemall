@@ -3,17 +3,17 @@
     <!-- 查询和其他操作 -->
     <div class="filter-container">
       <el-input
-        v-model="listQuery.username"
+        v-model="listQuery.nickname"
         clearable
         class="filter-item"
-        style="width: 200px;"
-        placeholder="请输入用户名"
+        style="width: 200px"
+        placeholder="请输入商户名称"
       />
       <el-input
         v-model="listQuery.mobile"
         clearable
         class="filter-item"
-        style="width: 200px;"
+        style="width: 200px"
         placeholder="请输入手机号"
       />
       <el-select
@@ -22,10 +22,34 @@
         class="filter-item"
         placeholder="请选择推荐人"
       >
-        <el-option v-for="(key, value) in employeeDic" :key="key" :label="key" :value="value" />
+        <el-option
+          v-for="(key, value) in employeeDic"
+          :key="key"
+          :label="key"
+          :value="value"
+        />
       </el-select>
 
-      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">查找</el-button>
+      <el-select
+        v-model="listQuery.cid"
+        style="width: 200px"
+        class="filter-item"
+        placeholder="请选择门店"
+      >
+        <el-option
+          v-for="item in storeDic"
+          :key="item.name"
+          :label="item.name"
+          :value="item.id"
+        />
+      </el-select>
+
+      <el-button
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >查找</el-button>
       <el-button
         :loading="downloadLoading"
         class="filter-item"
@@ -44,18 +68,25 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" width="100px" label="用户ID" prop="id" sortable />
+      <el-table-column
+        align="center"
+        width="100px"
+        label="用户ID"
+        prop="id"
+        sortable
+      />
 
-      <el-table-column align="center" label="用户名" prop="username" />
+      <el-table-column align="center" label="微信昵称" prop="username" />
+      <el-table-column align="center" label="商户名称" prop="nickname" />
 
       <el-table-column align="center" label="手机号码" prop="mobile" />
 
       <el-table-column align="center" label="地址" prop="password">
         <template slot-scope="scope">
           <span
-            style=" white-space: pre-wrap;"
+            style="white-space: pre-wrap"
             @click="handleAddress(scope.row)"
-          >{{ scope.row.address |addressFilter }}</span>
+          >{{ scope.row.address | addressFilter }}</span>
         </template>
       </el-table-column>
 
@@ -67,15 +98,24 @@
       <el-table-column align="center" label="注册日期" prop="addTime" />
       <el-table-column align="center" label="用户类型" prop="status">
         <template slot-scope="scope">
-          <el-tag @click="handleStatus(scope.row)">{{ statusDic[scope.row.status] }}</el-tag>
+          <el-tag @click="handleStatus(scope.row)">{{
+            statusDic[scope.row.status]
+          }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="用户等级" prop="userLevel">
         <template slot-scope="scope">
-          <el-tag @click="handleLevel(scope.row)">{{ levelDic[scope.row.userLevel] }}</el-tag>
+          <el-tag @click="handleLevel(scope.row)">{{
+            levelDic[scope.row.userLevel]
+          }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="250" class-name="small-padding fixed-width">
+      <el-table-column
+        align="center"
+        label="操作"
+        width="250"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
           <!-- el-button
             v-permission="['GET /admin/user/list']"
@@ -101,14 +141,14 @@
             @click="handleDelete(scope.row)"
           >删除</el-button>
           <el-button
-            v-if="scope.row.orderStatus==301"
+            v-if="scope.row.orderStatus == 301"
             v-permission="['POST /admin/order/list']"
             type="primary"
             size="mini"
             @click="handleShip(scope.row)"
           >转单</el-button>
           <el-button
-            v-if="scope.row.orderStatus==202||scope.row.orderStatus==204"
+            v-if="scope.row.orderStatus == 202 || scope.row.orderStatus == 204"
             v-permission="['POST /admin/order/refund']"
             type="primary"
             size="mini"
@@ -119,7 +159,7 @@
     </el-table>
 
     <pagination
-      v-show="total>0"
+      v-show="total > 0"
       :total="total"
       :page.sync="listQuery.page"
       :limit.sync="listQuery.limit"
@@ -134,7 +174,7 @@
         status-icon
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:50px;"
+        style="width: 400px; margin-left: 50px"
       >
         <el-form-item label="姓名" prop="name">
           <el-input v-model="addressForm.name" />
@@ -163,7 +203,7 @@
         status-icon
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:50px;"
+        style="width: 400px; margin-left: 50px"
       >
         <el-form-item label="用户类型" prop="status">
           <el-radio v-model="statusForm.status" label="1">商户</el-radio>
@@ -183,7 +223,7 @@
         status-icon
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:50px;"
+        style="width: 400px; margin-left: 50px"
       >
         <el-form-item label="用户类型" prop="status">
           <el-radio v-model="statusForm.userLevel" label="0">普通用户</el-radio>
@@ -204,7 +244,7 @@
         status-icon
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:50px;"
+        style="width: 400px; margin-left: 50px"
       >
         <el-form-item label="当前余额" prop="credit">
           <el-input v-model="this.credit" />
@@ -243,18 +283,20 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        username: undefined,
+        nickname: undefined,
         mobile: undefined,
         promoter: undefined,
         sort: 'id',
         order: 'desc',
-        userId: undefined
+        userId: undefined,
+        cid: 1003
       },
       downloadLoading: false,
       genderDic: ['未知', '男', '女'],
       levelDic: ['普通用户', 'VIP用户', '高级VIP用户'],
       statusDic: ['位置错误', '商户', '住户'],
       employeeDic: undefined,
+      storeDic: [{ id: 1003, name: '龙湖店' }, { id: 1004, name: '百荣店' }],
       address: [],
       addressDialogVisible: false,
       creditDialogVisible: false,

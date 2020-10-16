@@ -54,10 +54,12 @@ public class AdminOrderController {
                        @RequestParam(defaultValue = "1") Integer page,
                        @RequestParam(defaultValue = "10") Integer limit,
                        @RequestParam(defaultValue = "") String message,
+                       @RequestParam("cid") Integer cid,
+
                        @Sort @RequestParam(defaultValue = "add_time") String sort,
                        @Order @RequestParam(defaultValue = "desc") String order) {
         LitemallAdmin current = (LitemallAdmin) SecurityUtils.getSubject().getPrincipal();
-        return adminOrderService.list(current.getCid(),userId, orderSn, start, end, orderStatusArray,message, page, limit, sort, order);
+        return adminOrderService.list(cid,userId, orderSn, start, end, orderStatusArray,message, page, limit, sort, order);
     }
 
     @RequiresPermissions("admin:order:info")

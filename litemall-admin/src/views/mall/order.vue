@@ -6,21 +6,21 @@
         v-model="listQuery.userId"
         clearable
         class="filter-item"
-        style="width: 160px;"
+        style="width: 160px"
         placeholder="请输入用户ID"
       />
       <el-input
         v-model="listQuery.orderId"
         clearable
         class="filter-item"
-        style="width: 160px;"
+        style="width: 160px"
         placeholder="请输入订单ID"
       />
       <el-input
         v-model="listQuery.orderSn"
         clearable
         class="filter-item"
-        style="width: 160px;"
+        style="width: 160px"
         placeholder="请输入订单编号"
       />
       <el-select
@@ -29,7 +29,12 @@
         class="filter-item"
         placeholder="请选择推荐人"
       >
-        <el-option v-for="(key) in employeeDic" :key="key" :label="key" :value="key" />
+        <el-option
+          v-for="key in employeeDic"
+          :key="key"
+          :label="key"
+          :value="key"
+        />
       </el-select>
       <el-select
         v-model="listQuery.orderStatusArray"
@@ -38,9 +43,19 @@
         class="filter-item"
         placeholder="请选择订单状态"
       >
-        <el-option v-for="(key, value) in statusMap" :key="key" :label="key" :value="value" />
+        <el-option
+          v-for="(key, value) in statusMap"
+          :key="key"
+          :label="key"
+          :value="value"
+        />
       </el-select>
-      <el-option v-for="(key, value) in employeeDic" :key="key" :label="key" :value="value" />
+      <el-option
+        v-for="(key, value) in employeeDic"
+        :key="key"
+        :label="key"
+        :value="value"
+      />
       <el-date-picker
         v-model="listQuery.timeArray"
         type="datetimerange"
@@ -58,7 +73,25 @@
         class="filter-item"
         placeholder="请选择订单状态"
       >
-        <el-option v-for="(key, value) in statusMap" :key="key" :label="key" :value="value" />
+        <el-option
+          v-for="(key, value) in statusMap"
+          :key="key"
+          :label="key"
+          :value="value"
+        />
+      </el-select>
+      <el-select
+        v-model="listQuery.cid"
+        style="width: 200px"
+        class="filter-item"
+        placeholder="请选择门店"
+      >
+        <el-option
+          v-for="item in storeDic"
+          :key="item.name"
+          :label="item.name"
+          :value="item.id"
+        />
       </el-select>
       <el-button
         v-permission="['GET /admin/order/list']"
@@ -84,7 +117,12 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">新用户数量</div>
-            <count-to :start-val="0" :end-val="newUser" :duration="2600" class="card-panel-num" />
+            <count-to
+              :start-val="0"
+              :end-val="newUser"
+              :duration="2600"
+              class="card-panel-num"
+            />
           </div>
         </div>
       </el-col>
@@ -95,7 +133,12 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">送水数量</div>
-            <count-to :start-val="0" :end-val="goodsTotal" :duration="3000" class="card-panel-num" />
+            <count-to
+              :start-val="0"
+              :end-val="goodsTotal"
+              :duration="3000"
+              class="card-panel-num"
+            />
           </div>
         </div>
       </el-col>
@@ -122,7 +165,12 @@
           </div>
           <div class="card-panel-description">
             <div class="card-panel-text">订单数量</div>
-            <count-to :start-val="0" :end-val="orderTotal" :duration="3600" class="card-panel-num" />
+            <count-to
+              :start-val="0"
+              :end-val="orderTotal"
+              :duration="3600"
+              class="card-panel-num"
+            />
           </div>
         </div>
       </el-col>
@@ -192,7 +240,12 @@
       fit
       highlight-current-row
     >
-      <el-table-column align="center" min-width="100" label="订单编号" prop="orderSn" />
+      <el-table-column
+        align="center"
+        min-width="100"
+        label="订单编号"
+        prop="orderSn"
+      />
 
       <el-table-column
         align="center"
@@ -223,14 +276,28 @@
           <el-tag>{{ scope.row | paymentTypeFilter }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="支付时间" prop="payTime" min-width="110" />
+      <el-table-column
+        align="center"
+        label="支付时间"
+        prop="payTime"
+        min-width="110"
+      />
 
       <!--     <el-table-column align="center" label="物流单号" prop="shipSn" />-->
       <el-table-column align="center" label="推荐人" prop="message" />
       <el-table-column align="center" label="配送员" prop="shipChannel" />
-      <el-table-column align="center" label="送达时间" prop="goodConfirm.orderTime" />
+      <el-table-column
+        align="center"
+        label="送达时间"
+        prop="goodConfirm.orderTime"
+      />
 
-      <el-table-column align="center" label="操作" width="250" class-name="small-padding fixed-width">
+      <el-table-column
+        align="center"
+        label="操作"
+        width="250"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
           <el-button
             v-permission="['GET /admin/order/detail']"
@@ -245,21 +312,21 @@
             @click="handleDelete(scope.row)"
           >删除</el-button>
           <el-button
-            v-if="scope.row.orderStatus==201"
+            v-if="scope.row.orderStatus == 201"
             v-permission="['POST /admin/order/ship']"
             type="primary"
             size="mini"
             @click="handleShip(scope.row)"
           >发货</el-button>
           <el-button
-            v-if="scope.row.orderStatus==301"
+            v-if="scope.row.orderStatus == 301"
             v-permission="['POST /admin/order/ship']"
             type="primary"
             size="mini"
             @click="handleShip(scope.row)"
           >转单</el-button>
           <el-button
-            v-if="scope.row.orderStatus==202||scope.row.orderStatus==204"
+            v-if="scope.row.orderStatus == 202 || scope.row.orderStatus == 204"
             v-permission="['POST /admin/order/refund']"
             type="primary"
             size="mini"
@@ -270,7 +337,7 @@
     </el-table>
 
     <pagination
-      v-show="total>0"
+      v-show="total > 0"
       :total="total"
       :page.sync="listQuery.page"
       :limit.sync="listQuery.limit"
@@ -285,7 +352,9 @@
             <span>{{ orderDetail.order.orderSn }}</span>
           </el-form-item>
           <el-form-item label="订单状态">
-            <el-tag>{{ orderDetail.order.orderStatus | orderStatusFilter }}</el-tag>
+            <el-tag>{{
+              orderDetail.order.orderStatus | orderStatusFilter
+            }}</el-tag>
           </el-form-item>
           <el-form-item label="订单用户">
             <span>{{ orderDetail.user.nickname }}</span>
@@ -299,10 +368,23 @@
             <span>（地址）{{ orderDetail.order.address }}</span>
           </el-form-item>
           <el-form-item label="商品信息">
-            <el-table :data="orderDetail.orderGoods" border fit highlight-current-row>
-              <el-table-column align="center" label="商品名称" prop="goodsName" />
+            <el-table
+              :data="orderDetail.orderGoods"
+              border
+              fit
+              highlight-current-row
+            >
+              <el-table-column
+                align="center"
+                label="商品名称"
+                prop="goodsName"
+              />
               <el-table-column align="center" label="商品编号" prop="goodsSn" />
-              <el-table-column align="center" label="货品规格" prop="specifications" />
+              <el-table-column
+                align="center"
+                label="货品规格"
+                prop="specifications"
+              />
               <el-table-column align="center" label="货品价格" prop="price" />
               <el-table-column align="center" label="货品数量" prop="number" />
               <el-table-column align="center" label="货品图片" prop="picUrl">
@@ -314,11 +396,12 @@
           </el-form-item>
           <el-form-item label="费用信息">
             <span>
-              (实际费用){{ orderDetail.order.actualPrice }}元 =
-              (商品总价){{ orderDetail.order.goodsPrice }}元 +
-              (快递费用){{ orderDetail.order.freightPrice }}元 -
-              (优惠减免){{ orderDetail.order.couponPrice }}元 -
-              (积分减免){{ orderDetail.order.integralPrice }}元
+              (实际费用){{ orderDetail.order.actualPrice }}元 = (商品总价){{
+                orderDetail.order.goodsPrice
+              }}元 + (快递费用){{ orderDetail.order.freightPrice }}元 -
+              (优惠减免){{ orderDetail.order.couponPrice }}元 - (积分减免){{
+                orderDetail.order.integralPrice
+              }}元
             </span>
           </el-form-item>
           <el-form-item label="支付信息">
@@ -341,11 +424,28 @@
             <span>（送达时间）{{ orderDetail.order.confirmTime }}</span>
           </el-form-item>
           <el-form-item label="桶信息">
-            <el-table :data="orderDetail.confirms" border fit highlight-current-row>
+            <el-table
+              :data="orderDetail.confirms"
+              border
+              fit
+              highlight-current-row
+            >
               <el-table-column align="center" label="日期" prop="orderDate" />
-              <el-table-column align="center" label="送水" prop="orderGoodNum" />
-              <el-table-column align="center" label="本品牌桶回收" prop="originalNum" />
-              <el-table-column align="center" label="杂牌桶回收" prop="otherNum" />
+              <el-table-column
+                align="center"
+                label="送水"
+                prop="orderGoodNum"
+              />
+              <el-table-column
+                align="center"
+                label="本品牌桶回收"
+                prop="originalNum"
+              />
+              <el-table-column
+                align="center"
+                label="杂牌桶回收"
+                prop="otherNum"
+              />
               <el-table-column align="center" label="押卡" prop="fundCardNum" />
               <el-table-column align="center" label="押金" prop="fundPayNum" />
               <el-table-column align="center" label="总欠桶" prop="totalOwe" />
@@ -367,11 +467,16 @@
         status-icon
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:50px;"
+        style="width: 400px; margin-left: 50px"
       >
         <el-form-item label="配送员" prop="courier">
           <el-select v-model="shipForm.courierId" placeholder="请选择">
-            <el-option v-for="item in couriers" :key="item.id" :label="item.name" :value="item.id" />
+            <el-option
+              v-for="item in couriers"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
           </el-select>
         </el-form-item>
       </el-form>
@@ -389,7 +494,7 @@
         status-icon
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:50px;"
+        style="width: 400px; margin-left: 50px"
       >
         <el-form-item label="退款金额" prop="refundMoney">
           <el-input v-model="refundForm.refundMoney" :disabled="true" />
@@ -441,6 +546,7 @@ export default {
   },
   data() {
     return {
+      storeDic: [{ id: 1003, name: '龙湖店' }, { id: 1004, name: '百荣店' }],
       newUser: undefined,
       goodsTotal: undefined,
       returnTotal: undefined,
@@ -462,7 +568,8 @@ export default {
         sort: 'add_time',
         order: 'desc',
         orderId: undefined,
-        message: undefined
+        message: undefined,
+        cid: 1003
       },
       employeeDic: undefined,
 

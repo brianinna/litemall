@@ -58,7 +58,7 @@ public class LitemallUserService {
         }
 
         if (!StringUtils.isEmpty(username)) {
-            criteria.andUsernameLike("%" + username + "%");
+            criteria.andNicknameLike("%" + username + "%");
         }
         if (!StringUtils.isEmpty(mobile)) {
             criteria.andMobileEqualTo(mobile);

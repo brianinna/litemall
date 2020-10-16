@@ -117,7 +117,7 @@
       </div>
     </van-panel>
 
-    <!-- <van-panel>
+    <!--   <van-panel>
       <van-card
         :thumb-link="goDetail(groupGood.id)"
         v-for="(groupGood ,index) in shopInfos.hotGoodsList"
@@ -129,8 +129,8 @@
         :thumb="groupGood.picUrl"
         @native-click="goDetail(groupGood.id)"
       >
-        <div slot="footer">添加日期 {{item}}</div>
-      </van-card>
+    <!-- <div slot="footer">添加日期 {{item.addTime}}</div>-->
+    <!--    </van-card>
       <div slot="header">
         <van-cell-group>
           <van-cell title="人气推荐" isLink>
@@ -138,8 +138,8 @@
           </van-cell>
         </van-cell-group>
       </div>
-    </van-panel>
-    -->
+    </van-panel>-->
+
     <!--  <van-panel>
       <van-grid clickable :column-num="2">
         <van-grid-item
@@ -415,62 +415,5 @@ export default {
 .van-coupon-item--disabled p,
 .van-coupon-item--disabled span {
   color: #969799;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-}
-body {
-  width: 320px;
-  height: 40px;
-  overflow: hidden;
-  margin: 100px auto;
-}
-.content {
-  width: 100%;
-  overflow-x: scroll; // 子元素的宽度大于父元素的即可滚动
-  overflow-y: hidden;
-  border-radius: 4px;
-}
-/*  .content::-webkit-scrollbar {display:none} // 隐藏滚动条*/
-.redPacket {
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  float: left; // 使其脱离文档流 宽度为所有字元素的和
-  min-width: 100%;
-  height: 120px;
-}
-.item {
-  min-width: 150px;
-  height: 50px;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  flex: 3;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  background-image: linear-gradient(90deg, #ff6d0b 2%, #ef4916);
-  padding: 0 10px;
-}
-.amount {
-  text-align: center;
-  padding-right: 10px;
-  font-size: 12px;
-  color: #ffd41d;
-  border-right: 1px solid #ffa068;
-}
-.amount span {
-  font-size: 30px;
-  line-height: 30px;
-}
-.fundInfo {
-  padding: 8px 10px;
-}
-.fundInfo p {
-  color: #fff;
-  font-size: 12px;
 }
 </style>
